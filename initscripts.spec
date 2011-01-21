@@ -4,11 +4,11 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.23
+Version: 9.24
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 3%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -60,9 +60,6 @@ Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
 
-Patch0: diff
-Patch1: 0001-add-as-a-valid-character-in-network-device-names.patch
-
 %description
 The initscripts package contains the basic system scripts used to boot
 your Red Hat or Fedora system, change runlevels, and shut the system down
@@ -91,8 +88,6 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
 
 %build
 make
@@ -128,6 +123,8 @@ rm -f \
  $RPM_BUILD_ROOT/etc/rc.d/rc.sysinit.s390init \
  $RPM_BUILD_ROOT/etc/sysconfig/init.s390
 %endif
+
+touch $RPM_BUILD_ROOT/etc/crypttab
 
 %pre
 /usr/sbin/groupadd -g 22 -r -f utmp
@@ -290,6 +287,7 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %attr(0600,root,utmp) /var/log/btmp
 %ghost %attr(0664,root,utmp) /var/log/wtmp
 %ghost %attr(0664,root,utmp) /var/run/utmp
+%ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/crypttab
 %dir /etc/tmpfiles.d
 /etc/tmpfiles.d/initscripts.conf
 
@@ -314,11 +312,17 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Fri Dec 17 2010 Bill Nottingham <notting@redhat.com> - 9.23-3
-- accept '#' in ethernet device names (#663904, <matt_domsch@dell.com>)
-
-* Mon Dec 06 2010 Bill Nottingham <notting@redhat.com> - 9.23-2
-- fix routing regression (#660363)
+* Fri Jan 21 2010 Bill Nottingham <notting@redhat.com> - 9.24-1
+- ifup-eth/ifdown-eth: handle 'MASTER' being quoted. (#651450, <gfidente@redhat.com>)
+- tmpfiles.d: remove entries that exist in systemd
+- frob device when calling sysctl, in case of vlans. (#665601, #667211, <ossman@cendio.se>)
+- netfs: rework to handle bind-mounted cifs/ncpfs (#663140, <dmudrich@nospam.mudrichsystems.com>)
+- own /etc/crypttab (#664309)
+- init.d/network: add # as a valid character in network device names (<Matt_Domsch@dell.com>)
+- ifup-eth: fix routing regression (#660363)
+- sysctl.conf.s390 - system z optimized sysctl settings per default (#633323, <plautrba@redhat.com>)
+- serial.conf, tty.conf: stop tty and serial also on runlevel 's' (#629257, <plautrba@redhat.com>)
+- translation updates: bn_IN, es, gu, hi, nds, or, pa, uk, zh_CN
 
 * Thu Dec 02 2010 Bill Nottingham <notting@redhat.com> - 9.23-1
 - don't throw errors on unreadable /dev/stderr (#650103, <plautrba@redhat.com>)
