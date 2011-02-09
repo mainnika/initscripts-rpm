@@ -8,7 +8,7 @@ Version: 9.24
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -312,6 +312,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.24-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Fri Jan 21 2011 Bill Nottingham <notting@redhat.com> - 9.24-1
 - ifup-eth/ifdown-eth: handle 'MASTER' being quoted. (#651450, <gfidente@redhat.com>)
 - tmpfiles.d: remove entries that exist in systemd
