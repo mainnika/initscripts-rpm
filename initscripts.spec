@@ -4,11 +4,11 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.24
+Version: 9.25
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -312,8 +312,13 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.24-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+* Fri Feb 25 2011 Bill Nottingham <notting@redhat.com> - 9.25-1
+- remove 'Red Hat Linux' references from sysctl.conf* (<ville.skytta@iki.fi>)
+- rc.sysinit: add support for sysctl.d (#593211, <martin@laptop.org>)
+- console_check: support OMAP serial console (#678875, <ndevos@redhat.com>)
+- /sbin/service: accept --ignore-dependencies, --skip-redirect as options
+- /sbin/service: honor SYSTEMCTL_IGNORE_DEPENDENCIES (<lennart@poettering.net>)
+- translation updates: kn, pa, ta, uk
 
 * Fri Jan 21 2011 Bill Nottingham <notting@redhat.com> - 9.24-1
 - ifup-eth/ifdown-eth: handle 'MASTER' being quoted. (#651450, <gfidente@redhat.com>)
