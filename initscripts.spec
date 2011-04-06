@@ -4,7 +4,7 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.28
+Version: 9.29
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
@@ -27,8 +27,8 @@ Requires: upstart-sysvinit
 %endif
 %endif
 %if %{_with_systemd}
-Conflicts: systemd < 12-1
-Conflicts: systemd-units < 12-1
+Conflicts: systemd < 23-1
+Conflicts: systemd-units < 23-1
 %if ! %{_with_upstart}
 Requires: systemd-sysvinit
 %endif
@@ -125,6 +125,7 @@ rm -f \
 %endif
 
 touch $RPM_BUILD_ROOT/etc/crypttab
+chmod 600 $RPM_BUILD_ROOT/etc/crypttab
 
 %pre
 /usr/sbin/groupadd -g 22 -r -f utmp
@@ -312,6 +313,13 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Wed Apr 06 2011 Bill Nottingham <notting@redhat.com> - 9.29-1
+- systemd: add a storage setup service after cryptsetup.target (#692198)
+- fix /.autorelabel handling (<mschimdt@redhat.com>)
+- don't explicitly disallow IPv6 aliases (#583409, #612877)
+- netfs: don't print errors if mdadm isn't installed. (#692187)
+- ifup-eth: use /run/initramfs rather then /dev/.run/initramfs (<harald@redhat.com>)
+
 * Fri Mar 25 2011 Bill Nottingham <notting@redhat.com> - 9.28-1
 - add some generic network logging, port scripts to it (#507515, #653630)
 - add an error when setting the gateway fails (#672202)
