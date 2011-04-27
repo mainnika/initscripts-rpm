@@ -1,0 +1,18 @@
+commit 046a3ba411cc66eefcfe7d9a598e7960784e18e9
+Author: Bill Nottingham <notting@redhat.com>
+Date:   Wed Apr 27 15:31:11 2011 -0400
+
+    Don't redirect to systemctl, as 'start' in that case won't try to start it again.
+
+diff --git a/NetworkManager/dispatcher.d/05-netfs b/NetworkManager/dispatcher.d/05-netfs
+index 655c87a..bd55846 100755
+--- a/NetworkManager/dispatcher.d/05-netfs
++++ b/NetworkManager/dispatcher.d/05-netfs
+@@ -1,6 +1,7 @@
+ #!/bin/sh
+ 
+ export LC_ALL=C
++export SYSTEMCTL_SKIP_REDIRECT=1
+ 
+ if [ "$2" = "down" ]; then
+ 	/sbin/ip route ls | grep -q ^default || {

@@ -8,7 +8,7 @@ Version: 9.30
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -59,6 +59,7 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
+Patch0: 046a3ba411cc66eefcfe7d9a598e7960784e18e9.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -88,6 +89,7 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 make
@@ -314,7 +316,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Wed Apr 27 2011 Bill Nottingham <notting@redhat.com> - 9.30-1
+* Wed Apr 27 2011 Bill Nottingham <notting@redhat.com> - 9.30-2
 - ifup-eth: handle IPADDRx correctly for static addresses (#697838)
 - systemd: fix storage setup service after cryptsetup.target (#699918)
 - prefdm: tweak how plymouth is quit in the gdm/kdm case (<rstrode@redhat.com>)
@@ -323,6 +325,7 @@ rm -rf $RPM_BUILD_ROOT
 - network-functions: fix IPADDRx index handling (<jklimes@redhat.com>)
 - ifup/down-eth: properly handle apr_ip_target, when used with module options (#604669, <harald@redhat.com>)
 - ifup-eth: ensure bond exists before bringing up slaves (#694501)
+- 05-netfs: fix for systemd
 
 * Wed Apr 06 2011 Bill Nottingham <notting@redhat.com> - 9.29-1
 - systemd: add a storage setup service after cryptsetup.target (#692198)
