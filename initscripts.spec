@@ -8,7 +8,7 @@ Version: 9.31
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -60,6 +60,7 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
+Patch0: multipath-nosync.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -89,6 +90,7 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 make
@@ -314,6 +316,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Fri Jul 22 2011 Bill Nottingham <notting@redhat.com> - 9.31-2
+- work around multipath/udev incompatibility (#723357, <bmarzins@redhat.com>)
+
 * Tue Jun 21 2011 Bill Nottingham <notting@redhat.com> - 9.31-1
 - remove ifup/ifdown-ipsec; they're now in ipsec-tools
 - rc.sysinit: start udev by hand, start_udev is no more (#714531)
