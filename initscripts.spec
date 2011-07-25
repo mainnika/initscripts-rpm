@@ -8,7 +8,7 @@ Version: 9.31
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -61,6 +61,7 @@ Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
 Patch0: multipath-nosync.patch
+Patch1: remove-hack.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -91,6 +92,7 @@ Currently, this consists of various memory checking code.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 make
@@ -316,6 +318,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Mon Jul 25 2011 Bill Nottingham <notting@redhat.com> - 9.31-3
+- remove fedora-sysinit-hack/unhack; they're not needed with /var/lock/subsys on tmpfs
+
 * Fri Jul 22 2011 Bill Nottingham <notting@redhat.com> - 9.31-2
 - work around multipath/udev incompatibility (#723357, <bmarzins@redhat.com>)
 
