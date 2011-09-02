@@ -4,11 +4,11 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.31
+Version: 9.32
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 3%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -54,14 +54,13 @@ Conflicts: e2fsprogs < 1.15
 # http://bugzilla.redhat.com/show_bug.cgi?id=252973
 Conflicts: nut < 2.2.0
 Conflicts: NetworkManager < 1:0.8.0-12.git20100504
+Conflicts: libselinux < 2.1.0
 Conflicts: ipsec-tools < 0.8.0-2
 Obsoletes: hotplug <= 3:2004_09_23-10.1
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
-Patch0: multipath-nosync.patch
-Patch1: remove-hack.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -91,8 +90,6 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
 
 %build
 make
@@ -131,6 +128,10 @@ rm -f \
 
 touch $RPM_BUILD_ROOT/etc/crypttab
 chmod 600 $RPM_BUILD_ROOT/etc/crypttab
+
+rm -f $RPM_BUILD_ROOT/etc/rc.d/rc.local $RPM_BUILD_ROOT/etc/rc.local
+touch $RPM_BUILD_ROOT/etc/rc.d/rc.local
+chmod 755 $RPM_BUILD_ROOT/etc/rc.d/rc.local
 
 %pre
 /usr/sbin/groupadd -g 22 -r -f utmp
@@ -240,17 +241,15 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/rc.d
 %dir /etc/rc.d/rc[0-9].d
 %config(missingok) /etc/rc.d/rc[0-9].d/*
-%exclude /etc/rc.d/rc[0-9].d/*reboot
-%exclude /etc/rc.d/rc[0-9].d/*halt
+%exclude /etc/rc.d/rc[0-9].d/*
 /etc/rc[0-9].d
 %dir /etc/rc.d/init.d
-/etc/rc.local
 /etc/rc.d/init.d/*
 %exclude /etc/rc.d/init.d/halt
+%exclude /etc/rc.d/init.d/killall
 %exclude /etc/rc.d/init.d/reboot
-%exclude /etc/rc.d/rc[0-9].d/*single
 %exclude /etc/rc.d/init.d/single
-%config(noreplace) /etc/rc.d/rc.local
+%ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/rc.d/rc.local
 %config(noreplace) /etc/sysctl.conf
 %exclude /etc/profile.d/debug*
 /etc/profile.d/*
@@ -270,8 +269,6 @@ rm -rf $RPM_BUILD_ROOT
 %exclude /lib/udev/rules.d/10-console.rules
 %exclude /lib/udev/rules.d/88-clock.rules
 /lib/udev/rename_device
-/lib/udev/console_init
-/lib/udev/console_check
 /sbin/service
 /sbin/ppp-watch
 %{_mandir}/man*/*
@@ -311,6 +308,8 @@ rm -rf $RPM_BUILD_ROOT
 /etc/rc.d/rc
 /etc/rc.d/rc.sysinit
 /lib/udev/rules.d/*
+/lib/udev/console_init
+/lib/udev/console_check
 
 %files -n debugmode
 %defattr(-,root,root)
@@ -318,11 +317,23 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Mon Jul 25 2011 Bill Nottingham <notting@redhat.com> - 9.31-3
-- remove fedora-sysinit-hack/unhack; they're not needed with /var/lock/subsys on tmpfs
-
-* Fri Jul 22 2011 Bill Nottingham <notting@redhat.com> - 9.31-2
-- work around multipath/udev incompatibility (#723357, <bmarzins@redhat.com>)
+* Fri Sep  2 2011 Bill Nottingham <notting@redhat.com> - 9.32-1
+- prefdm: if exec() of all DMs fails, call 'plymouth quit' (#735215)
+- %%ghost rc.local (but leave it around on upgrade) (#734268)
+- ifup: support random bridging options via BRIDGING_OPTS (#734045, #665378)
+- selinuxfs moved to /sys/fs, handle it (#733759)
+- netfs/fedora-storage-init: call multipath and kpartx with -u (#733437)
+- plymouth lives in /bin (#702814)
+- drop fedora-autoswap
+- ifdown-eth: fix dhclient pid file for IPv6 (#729292, <daveg@dgit.ndo.co.uk>)
+- move some more things to the legacy subpackage
+- netfs: don't mount gfs2 here (#689593)
+- readonly-root: add an empty CLIENTSTATE defintion (#725476)
+- drop sysinit hack/unhack
+- ifup-eth: allow more options in ETHTOOL_OPTS (#692410, #693583)
+- rwtab: update for systemd (#704783)
+- debug.csh: fix for latest csh
+- update translations: eu_ES, hy, ku, lo, my, wa
 
 * Tue Jun 21 2011 Bill Nottingham <notting@redhat.com> - 9.31-1
 - remove ifup/ifdown-ipsec; they're now in ipsec-tools
