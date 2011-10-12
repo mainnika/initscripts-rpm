@@ -4,11 +4,11 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.30
+Version: 9.30.1
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -59,7 +59,6 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
-Patch0: 046a3ba411cc66eefcfe7d9a598e7960784e18e9.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -89,7 +88,6 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 make
@@ -247,6 +245,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/rc.d/init.d/*
 %exclude /etc/rc.d/init.d/halt
 %exclude /etc/rc.d/init.d/reboot
+%exclude /etc/rc.d/rc[0-9].d/*single
 %exclude /etc/rc.d/init.d/single
 %config(noreplace) /etc/rc.d/rc.local
 %config(noreplace) /etc/sysctl.conf
@@ -316,7 +315,17 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Wed Apr 27 2011 Bill Nottingham <notting@redhat.com> - 9.30-2
+* Wed Oct 12 2011 Bill Nottingham <notting@redhat.com> - 9.30.1-1
+- netconsole: only use the first ARP response (#744309, <doug.knight@karmix.org>)
+- assorted: plymouth lives in /bin (#702814)
+- ifdown-eth: fix dhclient pid file for IPv6 (#729292, <daveg@dgit.ndo.co.uk>)
+- console_*: add freescale ttymx ports (#728730, <ndevos@redhat.com>)
+- rwtab: update for systemd (#704783)
+- lang.csh/debug.csh: fix character classes
+- ifup-aliases: if IPv6 is configured on the alias, configure it. (#583409)
+- ifup-eth: ensure DHCP_HOSTNAME is a short hostname, seed it from HOSTNAME if needed. (#697877)
+
+* Wed Apr 27 2011 Bill Nottingham <notting@redhat.com> - 9.30-1
 - ifup-eth: handle IPADDRx correctly for static addresses (#697838)
 - systemd: fix storage setup service after cryptsetup.target (#699918)
 - prefdm: tweak how plymouth is quit in the gdm/kdm case (<rstrode@redhat.com>)
@@ -325,7 +334,6 @@ rm -rf $RPM_BUILD_ROOT
 - network-functions: fix IPADDRx index handling (<jklimes@redhat.com>)
 - ifup/down-eth: properly handle apr_ip_target, when used with module options (#604669, <harald@redhat.com>)
 - ifup-eth: ensure bond exists before bringing up slaves (#694501)
-- 05-netfs: fix for systemd
 
 * Wed Apr 06 2011 Bill Nottingham <notting@redhat.com> - 9.29-1
 - systemd: add a storage setup service after cryptsetup.target (#692198)
