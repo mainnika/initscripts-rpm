@@ -4,11 +4,11 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.32
+Version: 9.33
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -61,7 +61,6 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
-Patch1: 09bfb5033230e6846414bc6002aa12ce09c23687.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -91,7 +90,6 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%patch1 -p1
 
 %build
 make
@@ -319,8 +317,12 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Mon Sep 19 2011 Bill Nottingham <notting@redhat.com> - 9.32-2
-- clean up consoletype-related error messages (#735618)
+* Wed Oct 12 2011 Bill Nottingham <notting@redhat.com> - 9.33-1
+- netconsole: only use the first ARP response (#744309, <doug.knight@karmix.org>)
+- udev/rules.d/88-clock.rules: drop this entirely, as it causes issues in conjunction with systemd
+- init.d/network: be less picky about ifcfg file names. (#742276)
+- /sbin/service: do not check for the existence of a systemd unit before redirecting (<mschmidt@redhat.com>)
+- init.d/functions: only run consoletype if connected to something that's console-ish. (#657869)
 
 * Fri Sep  2 2011 Bill Nottingham <notting@redhat.com> - 9.32-1
 - prefdm: if exec() of all DMs fails, call 'plymouth quit' (#735215)
