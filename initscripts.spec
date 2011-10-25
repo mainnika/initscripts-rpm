@@ -4,13 +4,14 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.33
+Version: 9.34
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
+Patch: 807a7f3.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires: mingetty, /bin/awk, /bin/sed, mktemp
 Requires: /sbin/sysctl
@@ -90,6 +91,7 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch -p1
 
 %build
 make
@@ -316,6 +318,11 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Tue Oct 25 2011 Bill Nottingham <notting@redhat.com> - 9.34-2
+- read locale.conf if it exists (#706756)
+- ifdown: fix logic error with removing arp_ip_target (#745681)
+- service: don't write to stderr that's not there (#746263)
+
 * Wed Oct 12 2011 Bill Nottingham <notting@redhat.com> - 9.33-1
 - netconsole: only use the first ARP response (#744309, <doug.knight@karmix.org>)
 - udev/rules.d/88-clock.rules: drop this entirely, as it causes issues in conjunction with systemd
