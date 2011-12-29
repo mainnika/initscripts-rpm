@@ -18,7 +18,7 @@ Requires: /sbin/sysctl
 Requires: /sbin/fuser, /bin/grep
 Requires: /sbin/pidof, /sbin/blkid
 Requires: module-init-tools
-Requires: util-linux-ng >= 2.16
+Requires: util-linux >= 2.16
 Requires: bash >= 3.0
 Requires: sysvinit-tools >= 2.87-5
 %if %{_with_upstart}
