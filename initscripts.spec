@@ -13,7 +13,7 @@ URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 Patch: 807a7f3.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-Requires: mingetty, /bin/awk, /bin/sed, mktemp
+Requires: mingetty, /bin/awk, /bin/sed, coreutils
 Requires: /sbin/sysctl
 Requires: /sbin/fuser, /bin/grep
 Requires: /sbin/pidof, /sbin/blkid
