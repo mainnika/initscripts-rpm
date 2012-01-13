@@ -8,7 +8,7 @@ Version: 9.34
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 Patch: 807a7f3.patch
@@ -318,6 +318,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.34-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Tue Oct 25 2011 Bill Nottingham <notting@redhat.com> - 9.34-2
 - read locale.conf if it exists (#706756)
 - ifdown: fix logic error with removing arp_ip_target (#745681)
