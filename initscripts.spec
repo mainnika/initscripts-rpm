@@ -4,14 +4,13 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.34
+Version: 9.34.1
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
-Patch: 807a7f3.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires: mingetty, /bin/awk, /bin/sed, mktemp
 Requires: /sbin/sysctl
@@ -91,7 +90,6 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%patch -p1
 
 %build
 make
@@ -264,7 +262,6 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/fstab-decode
 /sbin/genhostid
 /sbin/getkey
-/sbin/securetty
 /sbin/sushell
 %attr(2755,root,root) /sbin/netreport
 /lib/udev/rules.d/*
@@ -273,6 +270,7 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/service
 /sbin/ppp-watch
 %{_mandir}/man*/*
+%exclude %{_mandir}/man*/securetty*
 %dir %attr(775,root,root) /var/run/netreport
 %dir /etc/ppp
 %dir /etc/ppp/peers
@@ -311,6 +309,8 @@ rm -rf $RPM_BUILD_ROOT
 /lib/udev/rules.d/*
 /lib/udev/console_init
 /lib/udev/console_check
+/sbin/securetty
+%{_mandir}/man*/securetty*
 
 %files -n debugmode
 %defattr(-,root,root)
@@ -318,10 +318,19 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Tue Oct 25 2011 Bill Nottingham <notting@redhat.com> - 9.34-2
+* Fri Mar  9 2012 Bill Nottingham <notting@redhat.com> - 9.34.1-1
+- sysconfig.txt: clean up section on disabling IPv6
+- ifup: allow for ifup-$TYPE/ifdown-$TYPE
+- fedora-readonly.service: drop StandardInput=tty (#785662)
+- sysconfig.txt: document additional ETHTOOL_OPTS enhancements (<raghusiddarth@gmail.com>)
+- don't use ifconfig in ifup-aliases (#721010, 588993, based on <tgummels@redhat.com>)
+- fedora-storage-init: handle dmraid sets with spaces (#728795, <lnykryn@redhat.com>)
+- fedora-readonly: don't exit with an error if SEinux isn't active. (#768628)
+- fedora-wait-storage: drop stdin/stdout/stderr (#735867)
+
+* Tue Oct 25 2011 Bill Nottingham <notting@redhat.com> - 9.34-1
 - read locale.conf if it exists (#706756)
 - ifdown: fix logic error with removing arp_ip_target (#745681)
-- service: don't write to stderr that's not there (#746263)
 
 * Wed Oct 12 2011 Bill Nottingham <notting@redhat.com> - 9.33-1
 - netconsole: only use the first ARP response (#744309, <doug.knight@karmix.org>)
