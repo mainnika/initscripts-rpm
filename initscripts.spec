@@ -4,14 +4,13 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.34
+Version: 9.35
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 3%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
-Patch: 807a7f3.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires: mingetty, /bin/awk, /bin/sed, coreutils
 Requires: /sbin/sysctl
@@ -91,7 +90,6 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%patch -p1
 
 %build
 make
@@ -144,7 +142,6 @@ chown root:utmp /var/log/wtmp /var/run/utmp /var/log/btmp
 chmod 664 /var/log/wtmp /var/run/utmp
 chmod 600 /var/log/btmp
 
-/sbin/chkconfig --add netfs
 /sbin/chkconfig --add network
 /sbin/chkconfig --add netconsole
 %if %{_with_systemd}
@@ -158,6 +155,14 @@ if [ $1 = 0 ]; then
   /sbin/chkconfig --del netfs
   /sbin/chkconfig --del network
   /sbin/chkconfig --del netconsole
+fi
+
+%post legacy
+/sbin/chkconfig --add netfs
+
+%preun legacy
+if [ $1 = 0 ; then
+  /sbin/chkconfig --del netfs
 fi
 
 %triggerun -- initscripts < 7.62
@@ -247,6 +252,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/rc[0-9].d
 %dir /etc/rc.d/init.d
 /etc/rc.d/init.d/*
+%exclude /etc/rc.d/init.d/netfs
 %exclude /etc/rc.d/init.d/halt
 %exclude /etc/rc.d/init.d/killall
 %exclude /etc/rc.d/init.d/reboot
@@ -264,7 +270,6 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/fstab-decode
 /sbin/genhostid
 /sbin/getkey
-/sbin/securetty
 /sbin/sushell
 %attr(2755,root,root) /sbin/netreport
 /lib/udev/rules.d/*
@@ -273,6 +278,7 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/service
 /sbin/ppp-watch
 %{_mandir}/man*/*
+%exclude %{_mandir}/man*/securetty*
 %dir %attr(775,root,root) /var/run/netreport
 %dir /etc/ppp
 %dir /etc/ppp/peers
@@ -285,7 +291,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/NetworkManager
 %dir /etc/NetworkManager/dispatcher.d
 /etc/NetworkManager/dispatcher.d/00-netreport
-/etc/NetworkManager/dispatcher.d/05-netfs
 %doc sysconfig.txt sysvinitfiles static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto changes.ipv6 COPYING README-init
 /var/lib/stateless
 %ghost %attr(0600,root,utmp) /var/log/btmp
@@ -298,6 +303,7 @@ rm -rf $RPM_BUILD_ROOT
 %files legacy
 %defattr(-,root,root)
 %config(noreplace) /etc/inittab
+/etc/NetworkManager/dispatcher.d/05-netfs
 %dir /etc/rc.d
 %dir /etc/rc.d/rc[0-9].d
 %config(missingok) /etc/rc.d/rc[0-9].d/*
@@ -311,6 +317,8 @@ rm -rf $RPM_BUILD_ROOT
 /lib/udev/rules.d/*
 /lib/udev/console_init
 /lib/udev/console_check
+/sbin/securetty
+%{_mandir}/man*/securetty*
 
 %files -n debugmode
 %defattr(-,root,root)
@@ -318,13 +326,25 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.34-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+* Fri Mar  9 2012 Bill Nottingham <notting@redhat.com> - 9.35-1
+- use the same DHCP lease file names as NetworkManager, where appropriate
+- copy network state from initramfs with a systemd service, not inline (<wwoods@redhat.com>)
+- sysconfig.txt: clean up section on disabling IPv6
+- ifup: allow for ifup-$TYPE/ifdown-$TYPE
+- fedora-readonly.service: drop StandardInput=tty (#785662)
+- sysconfig.txt: document additional ETHTOOL_OPTS enhancements (<raghusiddarth@gmail.com>)
+- port assorted ancient ifup-XYZ scripts away from ifconfig
+- don't use ifconfig in ifup-aliases (#721010, 588993, based on <tgummels@redhat.com>)
+- fedora-storage-init: handle dmraid sets with spaces (#728795, <lnykryn@redhat.com>)
+- fedora-readonly: don't exit with an error if SEinux isn't active. (#768628)
+- init.d/network: fix checks for network filesystems (#760018)
+- fedora-wait-storage: drop stdin/stdout/stderr (#735867)
+- netfs: move to legacy package
+- translation updates
 
-* Tue Oct 25 2011 Bill Nottingham <notting@redhat.com> - 9.34-2
+* Tue Oct 25 2011 Bill Nottingham <notting@redhat.com> - 9.34-1
 - read locale.conf if it exists (#706756)
 - ifdown: fix logic error with removing arp_ip_target (#745681)
-- service: don't write to stderr that's not there (#746263)
 
 * Wed Oct 12 2011 Bill Nottingham <notting@redhat.com> - 9.33-1
 - netconsole: only use the first ARP response (#744309, <doug.knight@karmix.org>)
