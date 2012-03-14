@@ -8,7 +8,7 @@ Version: 9.36
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -161,7 +161,7 @@ fi
 /sbin/chkconfig --add netfs
 
 %preun legacy
-if [ $1 = 0 ; then
+if [ $1 = 0 ]; then
   /sbin/chkconfig --del netfs
 fi
 
@@ -326,6 +326,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Wed Mar 14 2012 Bill Nottingham <notting@redhat.com> - 9.36-2
+- fix -legacy typo (#803449)
+
 * Mon Mar 12 2012 Bill Nottingham <notting@redhat.com> - 9.36-1
 - ifup-aliases: fix IFS usage mangling of device names (#802119)
 - ifup/ifdown: fix typo (#802055, <lubek@users.sourceforge.net>)
