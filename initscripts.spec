@@ -4,11 +4,11 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.36
+Version: 9.37
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -326,8 +326,8 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Wed Mar 14 2012 Bill Nottingham <notting@redhat.com> - 9.36-2
-- fix -legacy typo (#803449)
+* Fri Mar 16 2012 Bill Nottingham <notting@redhat.com> - 9.37-1
+- Add support for firewalld zones (#802415, from <jpopelka@redhat.com>)
 
 * Mon Mar 12 2012 Bill Nottingham <notting@redhat.com> - 9.36-1
 - ifup-aliases: fix IFS usage mangling of device names (#802119)
