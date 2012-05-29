@@ -8,7 +8,7 @@ Version: 9.37
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -97,6 +97,11 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make ROOT=$RPM_BUILD_ROOT SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} install
+# temporary fix for renamed unit file
+sed -i 's/udev-settle.service/systemd-udev-settle.service/' \
+  $RPM_BUILD_ROOT/lib/systemd/system/fedora-wait-storage.service > /dev/null 2>&1 || :
+sed -i 's/udev.service/systemd-udev.service/'\
+  $RPM_BUILD_ROOT/lib/systemd/system/fedora-wait-storage.service > /dev/null 2>&1 || :
 
 %find_lang %{name}
 
@@ -326,6 +331,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Tue May 29 2012 Kay Sievers <kay@redhat.com> - 9.37-2
+- temporary fix for renamed systemd-udev-settle.service unit
+
 * Fri Mar 16 2012 Bill Nottingham <notting@redhat.com> - 9.37-1
 - Add support for firewalld zones (#802415, from <jpopelka@redhat.com>)
 
