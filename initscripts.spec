@@ -4,24 +4,24 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.37
+Version: 9.38
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-Requires: mingetty, /bin/awk, /bin/sed, coreutils
+Requires: /bin/awk, sed, coreutils
 Requires: /sbin/sysctl
-Requires: /sbin/fuser, /bin/grep
-Requires: /sbin/pidof, /sbin/blkid
+Requires: /sbin/fuser, grep
 Requires: module-init-tools
 Requires: util-linux >= 2.16
 Requires: bash >= 3.0
 Requires: sysvinit-tools >= 2.87-5
 %if %{_with_upstart}
 Conflicts: upstart < 0.6.0
+Requires: mingetty
 %if ! %{_with_systemd}
 Requires: upstart-sysvinit
 %endif
@@ -35,28 +35,14 @@ Requires: systemd-sysvinit
 %endif
 %if %{_with_sysvinit}
 Requires: SysVinit >= 2.85-38
+Requires: mingetty
 %endif
-Requires: /sbin/ip, /sbin/arping, net-tools, /bin/find
+Requires: iproute, /sbin/arping, findutils
 Requires: /etc/system-release
-Requires: /sbin/runuser
 Requires: udev >= 125-1
 Requires: cpio
-Conflicts: mkinitrd < 4.0, kernel < 2.6.18, mdadm < 3.1.2-9
-Conflicts: ypbind < 1.6-12, psacct < 6.3.2-12, kbd < 1.06-19, lokkit < 0.50-14
-Conflicts: dhclient < 12:4.1.0-6
-Conflicts: tcsh < 6.13-5
-Conflicts: xorg-x11, glib2 < 2.11.1-2
-Conflicts: alsa-utils < 1.0.18
-Conflicts: plymouth < 0.7.0-0.2009.02.26
-Conflicts: s390utils < 2:1.8.2-11
-Conflicts: dmraid < 1.0.0.rc16-7, lvm2 < 2.02.65
-Conflicts: e2fsprogs < 1.15
-# http://bugzilla.redhat.com/show_bug.cgi?id=252973
-Conflicts: nut < 2.2.0
-Conflicts: NetworkManager < 1:0.8.0-12.git20100504
 Conflicts: libselinux < 2.1.0
 Conflicts: ipsec-tools < 0.8.0-2
-Obsoletes: hotplug <= 3:2004_09_23-10.1
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
@@ -97,11 +83,6 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make ROOT=$RPM_BUILD_ROOT SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} install
-# temporary fix for renamed unit file
-sed -i 's/udev-settle.service/systemd-udev-settle.service/' \
-  $RPM_BUILD_ROOT/lib/systemd/system/fedora-wait-storage.service > /dev/null 2>&1 || :
-sed -i 's/udev.service/systemd-udev.service/'\
-  $RPM_BUILD_ROOT/lib/systemd/system/fedora-wait-storage.service > /dev/null 2>&1 || :
 
 %find_lang %{name}
 
@@ -263,7 +244,7 @@ rm -rf $RPM_BUILD_ROOT
 %exclude /etc/rc.d/init.d/reboot
 %exclude /etc/rc.d/init.d/single
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/rc.d/rc.local
-%config(noreplace) /etc/sysctl.conf
+/usr/lib/sysctl.d/00-system.conf
 %exclude /etc/profile.d/debug*
 /etc/profile.d/*
 /usr/sbin/sys-unconfig
@@ -304,6 +285,7 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/crypttab
 %dir /etc/tmpfiles.d
 /etc/tmpfiles.d/initscripts.conf
+%dir /usr/libexec/initscripts/legacy-actions
 
 %files legacy
 %defattr(-,root,root)
@@ -331,8 +313,15 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Tue May 29 2012 Kay Sievers <kay@redhat.com> - 9.37-2
-- temporary fix for renamed systemd-udev-settle.service unit
+* Fri Jun 29 2012 Bill Nottingham <notting@redhat.com> - 9.38-1
+- assorted documentation cleanups
+- typo, spelling, licenese clean up (<ville.skytta@iki.fi>)
+- service: add support for legacy custom actions packaged in
+  /usr/libexec/initscripts/legacy-actions/<script>/<action>
+- network-functions: handle quoted HWADDR (#835372)
+- allow bridge names that start with '-' (<danken@redhat.com>)
+- remove all non-legacy uses of /sbin/route (#682308)
+- move default sysctl.conf to /usr/lib/sysctl.d (#760254)
 
 * Fri Mar 16 2012 Bill Nottingham <notting@redhat.com> - 9.37-1
 - Add support for firewalld zones (#802415, from <jpopelka@redhat.com>)
@@ -379,7 +368,7 @@ rm -rf $RPM_BUILD_ROOT
 - ifdown-eth: fix dhclient pid file for IPv6 (#729292, <daveg@dgit.ndo.co.uk>)
 - move some more things to the legacy subpackage
 - netfs: don't mount gfs2 here (#689593)
-- readonly-root: add an empty CLIENTSTATE defintion (#725476)
+- readonly-root: add an empty CLIENTSTATE definition (#725476)
 - drop sysinit hack/unhack
 - ifup-eth: allow more options in ETHTOOL_OPTS (#692410, #693583)
 - rwtab: update for systemd (#704783)
@@ -717,7 +706,7 @@ rm -rf $RPM_BUILD_ROOT
 - fix various issues with dmraid handling (#485895, <hdegoede@redhat.com>)
 - rc.sysinit: fix typo. (#487926)
 - console_init: loadkeys has a -q option for silent running. Use it.
-- ifup-tunnel: add compatiblity for openNHRP tunnels (#486559, <claude.tompers@ieee.lu>)
+- ifup-tunnel: add compatibility for openNHRP tunnels (#486559, <claude.tompers@ieee.lu>)
 - ccw_init: don't re-init an existing device, it causes errors. (#484411, <jpayne@redhat.com>)
 - netfs: use same kpartx arguments as rc.sysinit
 - don't list mtab in rwtab (#457941)
@@ -2732,7 +2721,7 @@ rm -rf $RPM_BUILD_ROOT
 - fix typo in /etc/rc.d/init.d/network that broke linuxconf (#10472)
 
 * Mon Mar 27 2000 Bill Nottingham <notting@redhat.com>
-- remove compatiblity chkconfig links
+- remove compatibility chkconfig links
 - run 'netfs stop' on 'network stop' if necessary
 
 * Tue Mar 21 2000 Bernhard Rosenkraenzer <bero@redhat.com>
@@ -3203,7 +3192,7 @@ rm -rf $RPM_BUILD_ROOT
 
 * Thu Nov 06 1997 Michael K. Johnson <johnsonm@redhat.com>
 - Fixed DEBUG option in ifup-ppp
-- Fixed PPP persistance
+- Fixed PPP persistence
 - Only change IP forwarding if necessary
 
 * Tue Oct 28 1997 Donnie Barnes <djb@redhat.com>
