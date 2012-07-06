@@ -4,7 +4,7 @@
 
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.37
+Version: 9.37.1
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
@@ -12,7 +12,7 @@ Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-Requires: mingetty, /bin/awk, /bin/sed, coreutils
+Requires: /bin/awk, /bin/sed, coreutils
 Requires: /sbin/sysctl
 Requires: /sbin/fuser, /bin/grep
 Requires: /sbin/pidof, /sbin/blkid
@@ -22,6 +22,7 @@ Requires: bash >= 3.0
 Requires: sysvinit-tools >= 2.87-5
 %if %{_with_upstart}
 Conflicts: upstart < 0.6.0
+Requires: mingetty
 %if ! %{_with_systemd}
 Requires: upstart-sysvinit
 %endif
@@ -35,6 +36,7 @@ Requires: systemd-sysvinit
 %endif
 %if %{_with_sysvinit}
 Requires: SysVinit >= 2.85-38
+Requires: mingetty
 %endif
 Requires: /sbin/ip, /sbin/arping, net-tools, /bin/find
 Requires: /etc/system-release
@@ -299,6 +301,7 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/crypttab
 %dir /etc/tmpfiles.d
 /etc/tmpfiles.d/initscripts.conf
+%dir /usr/libexec/initscripts/legacy-actions
 
 %files legacy
 %defattr(-,root,root)
@@ -326,6 +329,13 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Fri Jul  6 2012 Bill Nottingham <notting@redhat.com> - 9.37.1-1
+- assorted documentation cleanups
+- service: add support for legacy custom actions packaged in
+  /usr/libexec/initscripts/legacy-actions/<script>/<action>
+- fedora-readonly: assorted minor fixes (#808907)
+- match bonding devices correctly (#824175)
+
 * Fri Mar 16 2012 Bill Nottingham <notting@redhat.com> - 9.37-1
 - Add support for firewalld zones (#802415, from <jpopelka@redhat.com>)
 
