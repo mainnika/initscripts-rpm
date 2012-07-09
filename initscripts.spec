@@ -8,9 +8,10 @@ Version: 9.39
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
+Patch1: fixunit.diff
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires: /bin/awk, sed, coreutils
 Requires: /sbin/sysctl
@@ -76,6 +77,7 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 make
@@ -313,6 +315,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Mon Jul 09 2012 Bill Nottingham <notting@redhat.com> - 9.39-2
+- fix udev unit naming
+
 * Fri Jun 29 2012 Bill Nottingham <notting@redhat.com> - 9.39-1
 - assorted documentation cleanups
 - typo, spelling, licenese clean up (<ville.skytta@iki.fi>)
