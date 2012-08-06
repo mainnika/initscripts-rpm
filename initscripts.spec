@@ -1,18 +1,14 @@
-%define _with_upstart 0
-%define _with_systemd 1
-%define _with_sysvinit 0
-
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.39
+Version: 9.40
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 3%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
-Patch1: fixunit.diff
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+Obsoletes: initscripts-legacy <= 9.39
 Requires: /bin/awk, sed, coreutils
 Requires: /sbin/sysctl
 Requires: /sbin/fuser, grep
@@ -20,24 +16,9 @@ Requires: module-init-tools
 Requires: util-linux >= 2.16
 Requires: bash >= 3.0
 Requires: sysvinit-tools >= 2.87-5
-%if %{_with_upstart}
-Conflicts: upstart < 0.6.0
-Requires: mingetty
-%if ! %{_with_systemd}
-Requires: upstart-sysvinit
-%endif
-%endif
-%if %{_with_systemd}
 Conflicts: systemd < 23-1
 Conflicts: systemd-units < 23-1
-%if ! %{_with_upstart}
 Requires: systemd-sysvinit
-%endif
-%endif
-%if %{_with_sysvinit}
-Requires: SysVinit >= 2.85-38
-Requires: mingetty
-%endif
 Requires: iproute, /sbin/arping, findutils
 Requires: /etc/system-release
 Requires: udev >= 125-1
@@ -55,15 +36,6 @@ your Red Hat or Fedora system, change runlevels, and shut the system down
 cleanly.  Initscripts also contains the scripts that activate and
 deactivate most network interfaces.
 
-%package legacy
-Summary: Support for legacy booting methods
-Requires: initscripts = %{version}-%{release}
-Group: System Environment/Base
-
-%description legacy
-The initscripts-legacy package contains basic scripts that may be
-required to boot the system using older init systems
-
 %package -n debugmode
 Summary: Scripts for running in debugging mode
 Requires: initscripts
@@ -77,7 +49,6 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%patch1 -p1
 
 %build
 make
@@ -87,23 +58,6 @@ rm -rf $RPM_BUILD_ROOT
 make ROOT=$RPM_BUILD_ROOT SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} install
 
 %find_lang %{name}
-
-%if %{_with_systemd}
- mv -f $RPM_BUILD_ROOT/etc/inittab.systemd $RPM_BUILD_ROOT/etc/inittab
-%endif
-%if %{_with_upstart}
- mv -f $RPM_BUILD_ROOT/etc/inittab.upstart $RPM_BUILD_ROOT/etc/inittab
-%endif
-%if %{_with_sysvinit}
- mv -f $RPM_BUILD_ROOT/etc/inittab.sysv $RPM_BUILD_ROOT/etc/inittab
-%endif
-%if ! %{_with_upstart}
- rm -rf $RPM_BUILD_ROOT/etc/init
-%endif
-%if ! %{_with_systemd}
- rm -rf $RPM_BUILD_ROOT/lib/systemd
-%endif
-rm -f $RPM_BUILD_ROOT/etc/inittab.*
 
 %ifnarch s390 s390x
 rm -f \
@@ -132,25 +86,14 @@ chmod 600 /var/log/btmp
 
 /sbin/chkconfig --add network
 /sbin/chkconfig --add netconsole
-%if %{_with_systemd}
 if [ $1 -eq 1 ]; then
         /bin/systemctl daemon-reload > /dev/null 2>&1 || :
 fi
-%endif
 
 %preun
 if [ $1 = 0 ]; then
-  /sbin/chkconfig --del netfs
   /sbin/chkconfig --del network
   /sbin/chkconfig --del netconsole
-fi
-
-%post legacy
-/sbin/chkconfig --add netfs
-
-%preun legacy
-if [ $1 = 0 ]; then
-  /sbin/chkconfig --del netfs
 fi
 
 %triggerun -- initscripts < 7.62
@@ -158,13 +101,10 @@ fi
 /sbin/chkconfig --del rawdevices
 exit 0
 
-%if %{_with_systemd}
 %postun
 if [ $1 -ge 1 ]; then
 	/bin/systemctl daemon-reload > /dev/null 2>&1 || :
 fi
-%endif
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -183,10 +123,6 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/ifup
 %dir /etc/sysconfig/console
 %dir /etc/sysconfig/modules
-%dir /etc/sysconfig/networking
-%dir /etc/sysconfig/networking/devices
-%dir /etc/sysconfig/networking/profiles
-%dir /etc/sysconfig/networking/profiles/default
 /etc/sysconfig/network-scripts/network-functions
 /etc/sysconfig/network-scripts/network-functions-ipv6
 /etc/sysconfig/network-scripts/init.ipv6-global
@@ -215,7 +151,6 @@ rm -rf $RPM_BUILD_ROOT
 /etc/sysconfig/network-scripts/ifup-wireless
 /etc/sysconfig/network-scripts/ifup-isdn
 /etc/sysconfig/network-scripts/ifdown-isdn
-/etc/sysconfig/network-scripts/net.hotplug
 %ifarch s390 s390x
 /etc/sysconfig/network-scripts/ifup-ctc
 %endif
@@ -224,27 +159,15 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/rwtab.d
 /etc/statetab
 %dir /etc/statetab.d
-%if %{_with_upstart}
-/etc/init/*
-%endif
-%if %{_with_systemd}
-/lib/systemd/*
+/lib/systemd/fedora-*
 /lib/systemd/system/*
-%endif
 %config /etc/X11/prefdm
 %config(noreplace) /etc/inittab
 %dir /etc/rc.d
 %dir /etc/rc.d/rc[0-9].d
-%config(missingok) /etc/rc.d/rc[0-9].d/*
-%exclude /etc/rc.d/rc[0-9].d/*
 /etc/rc[0-9].d
 %dir /etc/rc.d/init.d
 /etc/rc.d/init.d/*
-%exclude /etc/rc.d/init.d/netfs
-%exclude /etc/rc.d/init.d/halt
-%exclude /etc/rc.d/init.d/killall
-%exclude /etc/rc.d/init.d/reboot
-%exclude /etc/rc.d/init.d/single
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/rc.d/rc.local
 /usr/lib/sysctl.d/00-system.conf
 %exclude /etc/profile.d/debug*
@@ -255,18 +178,14 @@ rm -rf $RPM_BUILD_ROOT
 /bin/usleep
 %attr(4755,root,root) /usr/sbin/usernetctl
 /sbin/consoletype
-/sbin/fstab-decode
 /sbin/genhostid
-/sbin/getkey
 /sbin/sushell
 %attr(2755,root,root) /sbin/netreport
 /lib/udev/rules.d/*
-%exclude /lib/udev/rules.d/10-console.rules
 /lib/udev/rename_device
 /sbin/service
 /sbin/ppp-watch
 %{_mandir}/man*/*
-%exclude %{_mandir}/man*/securetty*
 %dir %attr(775,root,root) /var/run/netreport
 %dir /etc/ppp
 %dir /etc/ppp/peers
@@ -279,35 +198,15 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/NetworkManager
 %dir /etc/NetworkManager/dispatcher.d
 /etc/NetworkManager/dispatcher.d/00-netreport
-%doc sysconfig.txt sysvinitfiles static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto changes.ipv6 COPYING README-init
+%doc sysconfig.txt sysvinitfiles static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto changes.ipv6 COPYING
 /var/lib/stateless
 %ghost %attr(0600,root,utmp) /var/log/btmp
 %ghost %attr(0664,root,utmp) /var/log/wtmp
 %ghost %attr(0664,root,utmp) /var/run/utmp
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/crypttab
-%dir /etc/tmpfiles.d
-/etc/tmpfiles.d/initscripts.conf
+%dir /lib/tmpfiles.d
+/lib/tmpfiles.d/initscripts.conf
 %dir /usr/libexec/initscripts/legacy-actions
-
-%files legacy
-%defattr(-,root,root)
-%config(noreplace) /etc/inittab
-/etc/NetworkManager/dispatcher.d/05-netfs
-%dir /etc/rc.d
-%dir /etc/rc.d/rc[0-9].d
-%config(missingok) /etc/rc.d/rc[0-9].d/*
-/etc/rc[0-9].d
-/etc/rc
-%dir /etc/rc.d/init.d
-/etc/rc.sysinit
-/etc/rc.d/init.d/*
-/etc/rc.d/rc
-/etc/rc.d/rc.sysinit
-/lib/udev/rules.d/*
-/lib/udev/console_init
-/lib/udev/console_check
-/sbin/securetty
-%{_mandir}/man*/securetty*
 
 %files -n debugmode
 %defattr(-,root,root)
@@ -315,11 +214,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.39-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
-
-* Mon Jul 09 2012 Bill Nottingham <notting@redhat.com> - 9.39-2
-- fix udev unit naming
+* Mon Aug  6 2012 Bill Nottingham <notting@redhat.com> - 9.40-1
+- drop support for booting non-systemd systems
+- drop legacy commands: getkey, fstab-decode, testd
 
 * Fri Jun 29 2012 Bill Nottingham <notting@redhat.com> - 9.39-1
 - assorted documentation cleanups
