@@ -1,6 +1,6 @@
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.40
+Version: 9.41
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
@@ -11,19 +11,20 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Obsoletes: initscripts-legacy <= 9.39
 Requires: /bin/awk, sed, coreutils
 Requires: /sbin/sysctl
-Requires: /sbin/fuser, grep
+Requires: grep
 Requires: module-init-tools
 Requires: util-linux >= 2.16
 Requires: bash >= 3.0
 Requires: sysvinit-tools >= 2.87-5
 Conflicts: systemd < 23-1
 Conflicts: systemd-units < 23-1
-Requires: systemd-sysvinit
+Requires: systemd
 Requires: iproute, /sbin/arping, findutils
+# Not strictly required, but nothing else requires it
 Requires: /etc/system-release
 Requires: udev >= 125-1
 Requires: cpio
-Conflicts: libselinux < 2.1.0
+Requires: hostname
 Conflicts: ipsec-tools < 0.8.0-2
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
@@ -64,7 +65,6 @@ rm -f \
  $RPM_BUILD_ROOT/etc/sysconfig/network-scripts/ifup-ctc \
 %else
 rm -f \
- $RPM_BUILD_ROOT/etc/rc.d/rc.sysinit.s390init \
  $RPM_BUILD_ROOT/etc/sysconfig/init.s390
 %endif
 
@@ -161,7 +161,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/statetab.d
 /lib/systemd/fedora-*
 /lib/systemd/system/*
-%config /etc/X11/prefdm
 %config(noreplace) /etc/inittab
 %dir /etc/rc.d
 %dir /etc/rc.d/rc[0-9].d
@@ -214,6 +213,14 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Fri Oct  5 2012 Bill Nottingham <notting@redhat.com> - 9.41-1
+- debugmode: MALLOC_CHECK_ is not thread safe. Don't enable it by default (#853175)
+- Add support for 256 color terminals (<pbrady@redhat.com>)
+- ifdown-eth: be less strict about VLAN name (#505314, <vpavlin@redhat.com>)
+- drop prefdm
+- ifup-eth: allow duplicate address detection to be disabled (<bcodding@uvm.edu>)
+- process rule6-* for sit devices (#840009, <lnykryn@redhat.com>)
+
 * Mon Aug  6 2012 Bill Nottingham <notting@redhat.com> - 9.40-1
 - drop support for booting non-systemd systems
 - drop legacy commands: getkey, fstab-decode, testd
