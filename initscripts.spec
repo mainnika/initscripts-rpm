@@ -4,7 +4,7 @@ Version: 9.41
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -30,6 +30,8 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
+Patch0: d7cc6f6.patch
+Patch1: 0001-Fix-calling-of-firewall-cmd-in-ifup-post-ifdown-post.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -50,6 +52,8 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch0 -p1
+%patch1 -p1
 
 %build
 make
@@ -213,6 +217,10 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Mon Oct  8 2012 Bill Nottingham <notting@redhat.com> - 9.41-2
+- fix invocation of firewall-cmd for current firewalld (#864060, <jpopelka@redhat.com>)
+- fix invocation of fixfiles in autorelabel (#863662, <dwalsh@redhat.com>)
+
 * Fri Oct  5 2012 Bill Nottingham <notting@redhat.com> - 9.41-1
 - debugmode: MALLOC_CHECK_ is not thread safe. Don't enable it by default (#853175)
 - Add support for 256 color terminals (<pbrady@redhat.com>)
