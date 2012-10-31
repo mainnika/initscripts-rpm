@@ -4,7 +4,7 @@ Version: 9.42
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -18,6 +18,8 @@ Requires: bash >= 3.0
 Requires: sysvinit-tools >= 2.87-5
 Conflicts: systemd < 23-1
 Conflicts: systemd-units < 23-1
+Conflicts: lvm2 < 2.02.98-3
+Conflicts: dmraid < 1.0.0.rc16-18
 Requires: systemd
 Requires: iproute, /sbin/arping, findutils
 # Not strictly required, but nothing else requires it
@@ -30,6 +32,7 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
+Patch0: 6091b58.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -50,6 +53,7 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 make
@@ -214,6 +218,11 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Thu Nov  1 2012 Peter Rajnoha <prajnoha@redhat.com> - 9.42-2
+- add Conflicts: lvm2 < 2.02.98-3 and2 Conflicts: dmraid < 1.0.0.rc16-18
+  as these new packages ship parts of the fedora-storage-init functionality
+- remove obsolete fedora-storage-init script and respective systemd units
+
 * Wed Oct 31 2012 Bill Nottingham <notting@redhat.com> - 9.42-1
 - Halloween release!
 - add a default /etc/sysctl.conf that describes how to change values, and where the defaults now live. (#760254)
