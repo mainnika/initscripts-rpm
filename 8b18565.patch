@@ -1,0 +1,17 @@
+commit 8b18565ab2aafd5ffcf504a357ae98cb5a612fdd (HEAD, F18-branch)
+Author: Bill Nottingham <notting@redhat.com>
+Date:   Tue Nov 6 14:16:56 2012 -0500
+
+    Change lvm command line. (#873565)
+
+diff --git a/systemd/fedora-storage-init b/systemd/fedora-storage-init
+index 565d811..41ba700 100755
+--- a/systemd/fedora-storage-init
++++ b/systemd/fedora-storage-init
+@@ -37,5 +37,5 @@ fi
+ [ -r /proc/mdstat ] && [ -r /dev/md/md-device-map ] && /sbin/mdadm -IRs
+ 
+ if [ -x /sbin/lvm ]; then
+-	action $"Setting up Logical Volume Management:" /sbin/lvm vgchange -a y --sysinit
++	action $"Setting up Logical Volume Management:" /sbin/lvm vgchange -a ay --sysinit
+ fi

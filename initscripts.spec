@@ -4,7 +4,7 @@ Version: 9.42
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 1%{?dist}.1
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -30,6 +30,8 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
+Patch0: 8b18565.patch
+Patch1: fb580ac.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -50,6 +52,8 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch0 -p1
+%patch1 -p1
 
 %build
 make
@@ -214,6 +218,10 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Tue Nov  6 2012 Bill Nottingham <notting@redhat.com> - 9.42-1.1
+- fedora-storage-init: change lvm command line. (#873565)
+- remove fedora-wait-storage (#870544)
+
 * Wed Oct 31 2012 Bill Nottingham <notting@redhat.com> - 9.42-1
 - Halloween release!
 - add a default /etc/sysctl.conf that describes how to change values, and where the defaults now live. (#760254)

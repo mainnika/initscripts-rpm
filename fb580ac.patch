@@ -1,0 +1,58 @@
+commit fb580ace2e92ca5b51b8d5e24c28c3ce2e00ee9c (HEAD, F18-branch)
+Author: Bill Nottingham <notting@redhat.com>
+Date:   Tue Nov 6 14:23:17 2012 -0500
+
+    Drop fedora-wait-storage since scsi_wait_scan no longer exists ... move udev-settle requirements to fedora-storage-init. (#870544)
+
+diff --git a/systemd/system/fedora-storage-init-late.service b/systemd/system/fedora-storage-init-late.service
+index 69ad089..edd6d0c 100644
+--- a/systemd/system/fedora-storage-init-late.service
++++ b/systemd/system/fedora-storage-init-late.service
+@@ -4,7 +4,6 @@ DefaultDependencies=no
+ Conflicts=shutdown.target
+ After=cryptsetup.target fedora-storage-init.service
+ Before=local-fs.target shutdown.target
+-Wants=fedora-wait-storage.service
+ ConditionFileIsExecutable=|/sbin/lvm
+ ConditionFileIsExecutable=|/sbin/dmraid
+ ConditionPathExists=|/etc/multipath.conf
+diff --git a/systemd/system/fedora-storage-init.service b/systemd/system/fedora-storage-init.service
+index 6d8e39f..bb559d7 100644
+--- a/systemd/system/fedora-storage-init.service
++++ b/systemd/system/fedora-storage-init.service
+@@ -2,9 +2,9 @@
+ Description=Initialize storage subsystems (RAID, LVM, etc.)
+ DefaultDependencies=no
+ Conflicts=shutdown.target
+-After=fedora-wait-storage.service
++After=systemd-udev-settle.service
+ Before=local-fs.target shutdown.target
+-Wants=fedora-wait-storage.service
++Wants=systemd-udev-settle.service
+ ConditionFileIsExecutable=|/sbin/lvm
+ ConditionFileIsExecutable=|/sbin/dmraid
+ ConditionPathExists=|/etc/multipath.conf
+diff --git a/systemd/system/fedora-wait-storage.service b/systemd/system/fedora-wait-storage.service
+deleted file mode 100644
+index 9d3b6ae..0000000
+--- a/systemd/system/fedora-wait-storage.service
++++ /dev/null
+@@ -1,18 +0,0 @@
+-[Unit]
+-Description=Wait for storage scan
+-DefaultDependencies=no
+-Conflicts=shutdown.target
+-After=systemd-udev-settle.service
+-Before=local-fs.target shutdown.target
+-Wants=systemd-udev-settle.service
+-
+-[Service]
+-ExecStart=-/sbin/rmmod scsi_wait_scan
+-ExecStart=-/sbin/modprobe scsi_wait_scan
+-ExecStart=-/sbin/rmmod scsi_wait_scan
+-Type=oneshot
+-TimeoutSec=0
+-RemainAfterExit=yes
+-StandardInput=null
+-StandardOutput=null
+-StandardError=null
