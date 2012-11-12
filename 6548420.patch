@@ -1,0 +1,24 @@
+commit 6548420e7155949e703d09519e54e364878f67bd (HEAD, origin/F18-branch, F18-branch)
+Author: Bill Nottingham <notting@redhat.com>
+Date:   Mon Nov 12 16:35:23 2012 -0500
+
+    Revert "Use sysfs rather than iwconfig for wireless check"
+    
+    This reverts commit af401fb40f6dd5139e8468dfe1bd3dafe40e8e93.
+    upstream removed sysfs wireless. How nice.
+
+diff --git a/sysconfig/network-scripts/network-functions b/sysconfig/network-scripts/network-functions
+index 5b2f30a..0b5b11d 100644
+--- a/sysconfig/network-scripts/network-functions
++++ b/sysconfig/network-scripts/network-functions
+@@ -418,7 +418,9 @@ add_default_route ()
+ 
+ is_wireless_device ()
+ {
+-    [ -d "/sys/class/net/$1/wireless" ]
++    [ -x /sbin/iwconfig ] || return 1
++    LC_ALL=C iwconfig $1 2>&1 | grep -q "no wireless extensions" || return 0
++    return 1
+ }
+ 
+ install_bonding_driver ()
