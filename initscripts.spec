@@ -32,6 +32,7 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
+Patch1: 65173d7.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -52,6 +53,7 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 make
@@ -175,7 +177,6 @@ rm -rf $RPM_BUILD_ROOT
 %exclude /etc/profile.d/debug*
 /etc/profile.d/*
 /usr/sbin/sys-unconfig
-/sbin/setsysfont
 /bin/ipcalc
 /bin/usleep
 %attr(4755,root,root) /usr/sbin/usernetctl
