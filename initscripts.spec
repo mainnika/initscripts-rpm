@@ -1,6 +1,6 @@
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.42.1
+Version: 9.42.2
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
@@ -30,7 +30,6 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
-Patch1: 65173d7.patch
 
 %description
 The initscripts package contains the basic system scripts used to boot
@@ -51,7 +50,6 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%patch1 -p1
 
 %build
 make
@@ -207,6 +205,7 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/crypttab
 %dir /lib/tmpfiles.d
 /lib/tmpfiles.d/initscripts.conf
+%dir /usr/libexec/initscripts
 %dir /usr/libexec/initscripts/legacy-actions
 
 %files -n debugmode
@@ -215,6 +214,20 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Wed Feb 20 2013 Lukáš Nykrýn <lnykryn@redhat.com> - 9.42.2-1
+- limit udev rule for network renaming (#907365, mschmidt@redhat.com)
+- fix path for arpwatch, seems to be in /var/lib on Fedora 18
+- fix the path for lvm cache, there is no file /etc/lvm/.cache ( but there is one /etc/lvm/cache )
+- fix path for dhcpd, is /var/lib/dhcpd since 2005 ( see 31cdb58df77 on the dhcp package git )
+- fix the patch for apache modules in rwtab, that are now in /var/cache/httpd
+- remove no longer used directory ( at least in Fedora ), hald is deprecated, /var/tux cannot be found and xend seems to use a subdirectory of /var/lib/xen
+- correct the path for puppet directory in /etc/rwtab, now use /var/lib/puppet by default
+- Correctly detect Open vSwitch device types
+- Clear DEVICE and TYPE variables before every iteration (#902463)
+- Add /usr/libexec/initscripts to file list (#894475)
+- Rename term256 to 256term (glob sort) (#849429)
+- Readd missing shebang. (#885821)
+
 * Fri Dec  7 2012 Bill Nottingham <notting@redhat.com> - 9.42.1-1
 - 60-net.rules: explicitly set the interface name (#870859)
 - ifup-eth: set firewall zone before ifup-ipv6 for DHCPv6 (#802415)
