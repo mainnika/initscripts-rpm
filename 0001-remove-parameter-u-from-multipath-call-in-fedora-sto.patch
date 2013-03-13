@@ -1,0 +1,26 @@
+From a838e9f574ece312b3f3d837a390813c156faf6e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=A1clav=20Pavl=C3=ADn?= <vpavlin@redhat.com>
+Date: Wed, 13 Mar 2013 13:26:26 +0100
+Subject: [PATCH] remove parameter -u from multipath call in
+ fedora-storage-init (#908275)
+
+---
+ systemd/fedora-storage-init | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/systemd/fedora-storage-init b/systemd/fedora-storage-init
+index 41ba700..df4323d 100755
+--- a/systemd/fedora-storage-init
++++ b/systemd/fedora-storage-init
+@@ -9,7 +9,7 @@
+ if ! strstr "$cmdline" nompath && [ -f /etc/multipath.conf ] && \
+ 		[ -x /sbin/multipath ]; then
+ 	modprobe dm-multipath > /dev/null 2>&1
+-	/sbin/multipath -u -v 0
++	/sbin/multipath -v 0
+ 	if [ -x /sbin/kpartx ]; then
+ 		/sbin/dmsetup ls --target multipath --exec "/sbin/kpartx -u -a -p p" >/dev/null
+ 	fi
+-- 
+1.8.1.4
+
