@@ -4,10 +4,11 @@ Version: 9.42.2
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 Patch0: 0001-remove-parameter-u-from-multipath-call-in-fedora-sto.patch
+Patch1: 0001-remount-rootfs.service-got-renamed-to-systemd-remoun.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Obsoletes: initscripts-legacy <= 9.39
 Requires: /bin/awk, sed, coreutils
@@ -52,6 +53,7 @@ Currently, this consists of various memory checking code.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 make
@@ -216,6 +218,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Fri Mar 15 2013 Václav Pavlín <vpavlin@redhat.com> - 9.42.2-3
+- remount-rootfs.service got renamed to systemd-remount-fs.service
+
 * Wed Mar 13 2013 Václav Pavlín <vpavlin@redhat.com> - 9.42.2-2
 - remove parameter -u from multipath call in fedora-storage-init (#908275)
 

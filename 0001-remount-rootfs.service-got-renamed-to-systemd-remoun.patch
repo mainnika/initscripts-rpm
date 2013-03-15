@@ -1,0 +1,40 @@
+From 7ae0decf762beed8ff17c03fd203e78e3108b46b Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Tue, 12 Mar 2013 13:58:09 +0100
+Subject: [PATCH] remount-rootfs.service got renamed to
+ systemd-remount-fs.service
+
+---
+ systemd/system/fedora-import-state.service | 2 +-
+ systemd/system/fedora-readonly.service     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/systemd/system/fedora-import-state.service b/systemd/system/fedora-import-state.service
+index 00d3d06..7425fba 100644
+--- a/systemd/system/fedora-import-state.service
++++ b/systemd/system/fedora-import-state.service
+@@ -5,7 +5,7 @@ ConditionPathIsReadWrite=/
+ ConditionDirectoryNotEmpty=/run/initramfs/state
+ Conflicts=shutdown.target
+ Before=shutdown.target emergency.service emergency.target systemd-tmpfiles-setup.service
+-After=remount-rootfs.service
++After=systemd-remount-fs.service
+ 
+ [Service]
+ ExecStart=/lib/systemd/fedora-import-state
+diff --git a/systemd/system/fedora-readonly.service b/systemd/system/fedora-readonly.service
+index 2a7db25..cc87979 100644
+--- a/systemd/system/fedora-readonly.service
++++ b/systemd/system/fedora-readonly.service
+@@ -3,7 +3,7 @@ Description=Configure read-only root support
+ DefaultDependencies=no
+ Conflicts=shutdown.target
+ Before=shutdown.target emergency.service emergency.target systemd-tmpfiles-setup.service local-fs.target
+-After=remount-rootfs.service
++After=systemd-remount-fs.service
+ 
+ [Service]
+ ExecStart=/lib/systemd/fedora-readonly
+-- 
+1.8.1.4
+
