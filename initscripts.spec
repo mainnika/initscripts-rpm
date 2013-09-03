@@ -1,10 +1,10 @@
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.48
+Version: 9.50
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -173,6 +173,7 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/rc.d/rc.local
 %config(noreplace) /etc/sysctl.conf
 /usr/lib/sysctl.d/00-system.conf
+/etc/sysctl.d/99-sysctl.conf
 %exclude /etc/profile.d/debug*
 /etc/profile.d/*
 /usr/sbin/sys-unconfig
@@ -217,8 +218,14 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.48-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+* Tue Sep 03 2013 Lukas Nykryn <lnykryn@redhat.com> - 9.50-1
+- ipcalc: support RFC3021 (#997271)
+- symlink /etc/sysctl.conf -> /etc/sysctl.d/
+- man: only action specified in LSB are redirected to systemd
+- service: filter actions that are not supported by systemctl in service (#947823)
+- install_bonding_driver: drop check for existing device (#991335)
+- consider IPV6INIT undefined as YES
+- don't care about network filesystems
 
 * Fri Jul 12 2013 Lukáš Nykrýn <lnykryn@redhat.com> - 9.48-1
 - man: add systemd man pages to service.8 "see also" section
