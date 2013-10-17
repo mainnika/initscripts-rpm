@@ -4,7 +4,7 @@ Version: 9.50
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -15,7 +15,6 @@ Requires: grep
 Requires: module-init-tools
 Requires: util-linux >= 2.16
 Requires: bash >= 3.0
-Requires: sysvinit-tools >= 2.87-5
 Conflicts: systemd < 23-1
 Conflicts: systemd-units < 23-1
 Conflicts: lvm2 < 2.02.98-3
@@ -218,6 +217,10 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Thu Oct 17 2013 Lukas Nykryn <lnykryn@redhat.com> - 9.50-2
+- pidof is now in procps-ng
+- TODO: add dependency to procps-ng when new version is built
+
 * Tue Sep 03 2013 Lukas Nykryn <lnykryn@redhat.com> - 9.50-1
 - ipcalc: support RFC3021 (#997271)
 - symlink /etc/sysctl.conf -> /etc/sysctl.d/
