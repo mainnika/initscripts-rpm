@@ -1,10 +1,10 @@
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.50
+Version: 9.51
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -15,6 +15,7 @@ Requires: grep
 Requires: module-init-tools
 Requires: util-linux >= 2.16
 Requires: bash >= 3.0
+Requires: sysvinit-tools >= 2.87-5
 Conflicts: systemd < 23-1
 Conflicts: systemd-units < 23-1
 Conflicts: lvm2 < 2.02.98-3
@@ -27,6 +28,7 @@ Requires: udev >= 125-1
 Requires: cpio
 Requires: hostname
 Conflicts: ipsec-tools < 0.8.0-2
+Conflicts: NetworkManager < 0.9.9.0-9.git20130807
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
@@ -217,9 +219,16 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Thu Oct 17 2013 Lukas Nykryn <lnykryn@redhat.com> - 9.50-2
-- pidof is now in procps-ng
-- TODO: add dependency to procps-ng when new version is built
+* Tue Jan 14 2014 Lukáš Nykrýn <lnykryn@redhat.com> 9.51-1
+- readonly-root: bind-mount only necessary subset of entries in rwtab
+- readonly-root: Add /var/log/audit/audit.log to rwtab
+- readonly-root: restore selinux context after bind mount
+- rename_device: remove comments and trailing whitespaces
+- service: suggest using systemctl if unknown action is used
+- ifup-eth: fix typo in error message
+- use iw instead of iwconfig and friends
+- update functions who call nmcli
+- ifdown: fix typo in nmcli call
 
 * Tue Sep 03 2013 Lukas Nykryn <lnykryn@redhat.com> - 9.50-1
 - ipcalc: support RFC3021 (#997271)
