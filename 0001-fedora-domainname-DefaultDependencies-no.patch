@@ -1,0 +1,25 @@
+From fc38d5eead7a1477c6fe580b224c7a6e113d52fe Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Mon, 3 Mar 2014 16:11:33 +0100
+Subject: [PATCH 1/4] fedora-domainname: DefaultDependencies=no
+
+---
+ systemd/system/fedora-domainname.service | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/systemd/system/fedora-domainname.service b/systemd/system/fedora-domainname.service
+index e501a13..d5e0ff5 100644
+--- a/systemd/system/fedora-domainname.service
++++ b/systemd/system/fedora-domainname.service
+@@ -1,6 +1,8 @@
+ [Unit]
+ Description=Read and set NIS domainname from /etc/sysconfig/network
+ Before=ypbind.service yppasswdd.service ypserv.service ypxfrd.service
++DefaultDependencies=no
++Conflicts=shutdown.target
+ 
+ [Service]
+ ExecStart=/lib/systemd/fedora-domainname
+-- 
+1.8.5.3
+
