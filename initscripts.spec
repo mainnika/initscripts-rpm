@@ -3,13 +3,12 @@ Name: initscripts
 Version: 9.54
 License: GPLv2
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Obsoletes: initscripts-legacy <= 9.39
 Requires: /bin/awk, sed, coreutils
-Requires: /sbin/sysctl
 Requires: grep
 Requires: module-init-tools
 Requires: util-linux >= 2.16
@@ -211,6 +210,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Wed May 21 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.54-3
+- don't require sysctl, it is in procps anyway
+
 * Tue Apr 15 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.54-1
 - move ppp support to ppp package
 - remove fedora-configure
