@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.54
 License: GPLv2
 Group: System Environment/Base
-Release: 3%{?dist}
+Release: 4%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -210,6 +210,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.54-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Wed May 21 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.54-3
 - don't require sysctl, it is in procps anyway
 
