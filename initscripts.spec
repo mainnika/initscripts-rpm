@@ -1,9 +1,9 @@
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.54
+Version: 9.55
 License: GPLv2
 Group: System Environment/Base
-Release: 5%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -34,8 +34,6 @@ Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
 Provides: /sbin/service
 
-Patch0: 0001-remove-ppp-from-translation.patch
-
 %description
 The initscripts package contains the basic system scripts used to boot
 your Red Hat or Fedora system, change runlevels, and shut the system down
@@ -55,8 +53,6 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%autopatch -p1
-
 
 %build
 make
@@ -212,14 +208,15 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Sat Jul 12 2014 Tom Callaway <spot@fedoraproject.org> - 9.54-5
+* Tue Jul 22 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.55-1
 - fix license handling
-
-* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.54-4
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
-
-* Wed May 21 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.54-3
-- don't require sysctl, it is in procps anyway
+- ipcalc: -c allow netmask
+- ipcalc: parse prefix more safely
+- inittab: fix path and mention set-default
+- don't require /sbin/sysctl
+- init.d/functions: check parent dir of pid file for accessibility
+- ifup-eth: some options for bridge can be applied after the bridge is up
+- remove ppp from translation
 
 * Tue Apr 15 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.54-1
 - move ppp support to ppp package
