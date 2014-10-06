@@ -1,9 +1,9 @@
-Summary: The inittab file and the /etc/init.d scripts
+Summary: Scripts to bring up network interfaces
 Name: initscripts
-Version: 9.55
+Version: 9.56.1
 License: GPLv2
 Group: System Environment/Base
-Release: 3%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -34,28 +34,23 @@ Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
 Provides: /sbin/service
 
-Patch0001: 0001-fedora-import-state-do-not-clobber.patch
-
 %description
-The initscripts package contains the basic system scripts used to boot
-your Red Hat or Fedora system, change runlevels, and shut the system down
-cleanly.  Initscripts also contains the scripts that activate and
-deactivate most network interfaces.
+This package contains the script that activates and deactivates most
+network interfaces, some utilities, and other legacy files.
 
 %package -n debugmode
-Summary: Scripts for running in debugging mode
+Summary: Scripts for running in debug mode
 Requires: initscripts
 Group: System Environment/Base
 
 %description -n debugmode
 The debugmode package contains some basic scripts that are used to run
-the system in a debugging mode.
+the system in a debug mode.
 
 Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
-%patch0001 -p1
 
 %build
 make
@@ -74,22 +69,11 @@ rm -f \
  $RPM_BUILD_ROOT/etc/sysconfig/init.s390
 %endif
 
-touch $RPM_BUILD_ROOT/etc/crypttab
-chmod 600 $RPM_BUILD_ROOT/etc/crypttab
-
 rm -f $RPM_BUILD_ROOT/etc/rc.d/rc.local $RPM_BUILD_ROOT/etc/rc.local
 touch $RPM_BUILD_ROOT/etc/rc.d/rc.local
 chmod 755 $RPM_BUILD_ROOT/etc/rc.d/rc.local
 
-%pre
-/usr/sbin/groupadd -g 22 -r -f utmp
-
 %post
-touch /var/log/wtmp /var/run/utmp /var/log/btmp
-chown root:utmp /var/log/wtmp /var/run/utmp /var/log/btmp
-chmod 664 /var/log/wtmp /var/run/utmp
-chmod 600 /var/log/btmp
-
 /usr/sbin/chkconfig --add network
 /usr/sbin/chkconfig --add netconsole
 if [ $1 -eq 1 ]; then
@@ -164,16 +148,13 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/statetab.d
 /usr/lib/systemd/fedora-*
 /usr/lib/systemd/system/*
-/etc/inittab
 %dir /etc/rc.d
 %dir /etc/rc.d/rc[0-9].d
 /etc/rc[0-9].d
 %dir /etc/rc.d/init.d
 /etc/rc.d/init.d/*
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/rc.d/rc.local
-%config(noreplace) /etc/sysctl.conf
 /usr/lib/sysctl.d/00-system.conf
-/etc/sysctl.d/99-sysctl.conf
 %exclude /etc/profile.d/debug*
 /etc/profile.d/*
 /usr/sbin/sys-unconfig
@@ -193,13 +174,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/NetworkManager/dispatcher.d
 /etc/NetworkManager/dispatcher.d/00-netreport
 %doc sysconfig.txt sysvinitfiles static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto changes.ipv6
+%doc examples
 %{!?_licensedir:%global license %%doc}
 %license COPYING
 /var/lib/stateless
-%ghost %attr(0600,root,utmp) /var/log/btmp
-%ghost %attr(0664,root,utmp) /var/log/wtmp
-%ghost %attr(0664,root,utmp) /var/run/utmp
-%ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/crypttab
 %dir /usr/lib/tmpfiles.d
 /usr/lib/tmpfiles.d/initscripts.conf
 %dir /usr/libexec/initscripts
@@ -211,11 +189,34 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Mon Oct 06 2014 Zbigniew Jędrzejewski-Szmek- 9.55-3
-- Update fedora-import-state for bug #1149419.
+* Tue Oct 07 2014 Zbigniew Jędrzejewski-Szmek - 9.56.1-1
+- Remove /etc/inittab, /etc/crypttab, utmp, wtmp, btmp
 
-* Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.55-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+* Tue Oct 07 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56-1
+- network_function: return immediately when device is pres
+ent
+- add configurable DEVTIMEOUT
+- fedora-import-state: do not clobber /
+- network-functions: grep->fgrep in bonding masters matchi
+ng
+- man: update sys-unconfig.8
+- rename_devices: comments need to have a blank before them
+- add example ifcfg files
+- network-functions: improve bonding_masters grep
+- ifup: if we were unable to determine DEVICE always call nmcli up
+- ifup-tunnel: call ifup-ipv6 in the end
+- ifup: also set multicast_snooping after the bridge is up
+- network-functions: ETHTOOL_DELAY introduction patch
+- use pie and relro by default
+- custom naming for VLAN devices
+- vi.po: fix parentheses
+- ifup-wireless: add support for wowlan
+- ifup-wireless: add support for wowlan (second part)
+- ifup-aliases: do not bring up ipv6 for range files
+- sys-unconfig: use poweroff instead of halt
+- ifup-aliases: improve duplicate address detection
+- network-functions: handle BONDING_OPTS better
+- network: tell nm to wake the slaves
 
 * Tue Jul 22 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.55-1
 - fix license handling
