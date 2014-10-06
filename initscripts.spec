@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.55
 License: GPLv2
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -34,6 +34,8 @@ Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
 Provides: /sbin/service
 
+Patch0001: 0001-fedora-import-state-do-not-clobber.patch
+
 %description
 The initscripts package contains the basic system scripts used to boot
 your Red Hat or Fedora system, change runlevels, and shut the system down
@@ -53,6 +55,7 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch0001 -p1
 
 %build
 make
@@ -208,6 +211,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Mon Oct 06 2014 Zbigniew Jędrzejewski-Szmek- 9.55-3
+- Update fedora-import-state for bug #1149419.
+
 * Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.55-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 

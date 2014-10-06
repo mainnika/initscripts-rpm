@@ -1,0 +1,33 @@
+From 83d0e2588efadf2ae4b53f01ff31921f60906419 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Mon, 6 Oct 2014 11:45:14 -0400
+Subject: [PATCH] fedora-import-state: do not clobber /
+
+Also, do not fail on filenames containing spaces.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1149419
+---
+ systemd/fedora-import-state | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/systemd/fedora-import-state b/systemd/fedora-import-state
+index a853ab9cda..f23692a6c7 100755
+--- a/systemd/fedora-import-state
++++ b/systemd/fedora-import-state
+@@ -1,14 +1,11 @@
+ #!/bin/bash
+ # fedora-import-state: import state files from initramfs (e.g. network config)
+ 
+-# exit early if root isn't writeable
+-[ -w / ] || exit 0
+-
+ # copy state into root
+ cd /run/initramfs/state
+-cp -a -t / .
++find . -mindepth 1 -maxdepth 1 -exec cp -av -t / {} \;
+ 
+ # run restorecon on the copied files
+ if [ -e /sys/fs/selinux/enforce ]; then
+-    find . | ( cd /; restorecon -i -f -; ) || :
++    find . -mindepth 1 | { cd / && xargs -t restorecon -i; } || :
+ fi
