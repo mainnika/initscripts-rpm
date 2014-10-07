@@ -4,7 +4,7 @@ Version: 9.47
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -34,6 +34,8 @@ Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
 Provides: /sbin/service
 
+Patch1: 0001-install_bonding_driver-drop-check-for-existing-devic.patch
+
 %description
 The initscripts package contains the basic system scripts used to boot
 your Red Hat or Fedora system, change runlevels, and shut the system down
@@ -53,6 +55,7 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 make
@@ -217,6 +220,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Tue Oct 07 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.47-2
+- install_bonding_driver: drop check for existing device (#1082257)
+
 * Fri May 31 2013 Lukáš Nykrýn <lnykryn@redhat.com> - 9.47-1
 - network-functions: to determine state of nscd check socket not lock (#960779)
 - sysconfig.txt advised saslauthd -a instad of -v

@@ -1,0 +1,27 @@
+From 7648a78fc9f973b111776ff8ddb32f5108f6a985 Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Mon, 5 Aug 2013 15:33:08 +0200
+Subject: [PATCH] install_bonding_driver: drop check for existing device
+ (#991335)
+
+Install_bonding_driver is now doing more that loading kernel driver,
+so that check is not correct.
+---
+ sysconfig/network-scripts/network-functions | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/sysconfig/network-scripts/network-functions b/sysconfig/network-scripts/network-functions
+index 1cb26d1..c699fc0 100644
+--- a/sysconfig/network-scripts/network-functions
++++ b/sysconfig/network-scripts/network-functions
+@@ -428,7 +428,6 @@ is_wireless_device ()
+ 
+ install_bonding_driver ()
+ {
+-   [ -d "/sys/class/net/$1" ] && return 0
+    [ ! -f /sys/class/net/bonding_masters ] && ( modprobe bonding || return 1 )
+    if ! grep -sq "$1" /sys/class/net/bonding_masters; then
+        echo "+$1" > /sys/class/net/bonding_masters 2>/dev/null
+-- 
+1.8.3.1
+
