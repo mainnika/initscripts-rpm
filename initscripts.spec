@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.56.1
 License: GPLv2
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -14,7 +14,7 @@ Requires: module-init-tools
 Requires: util-linux >= 2.16
 Requires: bash >= 3.0
 Requires: procps-ng >= 3.3.8-16
-Conflicts: systemd < 23-1
+Conflicts: systemd < 216-3
 Conflicts: systemd-units < 23-1
 Conflicts: lvm2 < 2.02.98-3
 Conflicts: dmraid < 1.0.0.rc16-18
@@ -189,6 +189,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Mon Oct 13 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56.1-2
+- Conflict with older systemd due to move of files
+
 * Tue Oct 07 2014 Zbigniew Jędrzejewski-Szmek - 9.56.1-1
 - Remove /etc/inittab, /etc/crypttab, utmp, wtmp, btmp
 
