@@ -1,9 +1,9 @@
-Summary: Scripts to bring up network interfaces
+Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.56.1
+Version: 9.58
 License: GPLv2
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -189,10 +189,11 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
-* Mon Oct 13 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56.1-2
-- Conflict with older systemd due to move of files
+* Thu Nov 06 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.58-1
+- ifup,vlan: fix typo
+- doc: be consistent and use BOOTPROTO=none
 
-* Tue Oct 07 2014 Zbigniew Jędrzejewski-Szmek - 9.56.1-1
+* Tue Oct 07 2014 Zbigniew Jędrzejewski-Szmek - 9.57
 - Remove /etc/inittab, /etc/crypttab, utmp, wtmp, btmp
 
 * Tue Oct 07 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56-1
