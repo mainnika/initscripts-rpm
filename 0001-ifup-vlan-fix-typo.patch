@@ -1,0 +1,25 @@
+From ca531a88a9dfb8675a908bae8af49e81f061baef Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Tue, 8 Jul 2014 13:18:29 +0200
+Subject: [PATCH] ifup,vlan: fix typo
+
+---
+ sysconfig/network-scripts/ifup | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sysconfig/network-scripts/ifup b/sysconfig/network-scripts/ifup
+index f2a1c8f..911707e 100755
+--- a/sysconfig/network-scripts/ifup
++++ b/sysconfig/network-scripts/ifup
+@@ -76,7 +76,7 @@ fi
+ 
+ # Ethernet 802.1Q VLAN support
+ if [ "${VLAN}" = "yes" ] && [ "$ISALIAS" = "no" ] && [ -n $DEVICE ]; then
+-    if [ -n ${VID} ]; then
++    if [ -n "${VID}" ]; then
+         if test -z "$PHYSDEV"; then
+             net_log $"PHYSDEV should be set for device ${DEVICE}"
+             exit 1
+-- 
+1.8.3.1
+

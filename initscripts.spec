@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.56.1
 License: GPLv2
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -34,6 +34,8 @@ Requires(preun): /sbin/chkconfig
 BuildRequires: glib2-devel popt-devel gettext pkgconfig
 Provides: /sbin/service
 
+Patch1: 0001-ifup-vlan-fix-typo.patch
+
 %description
 This package contains the script that activates and deactivates most
 network interfaces, some utilities, and other legacy files.
@@ -51,6 +53,7 @@ Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 make
@@ -189,6 +192,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Thu Nov 06 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56.1-3
+- ifup,vlan: fix typo
+
 * Mon Oct 13 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56.1-2
 - Conflict with older systemd due to move of files
 
