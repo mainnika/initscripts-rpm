@@ -4,10 +4,11 @@ Version: 9.51
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 Patch0: 0001-fedora-domainname-DefaultDependencies-no.patch
+Patch1: 0001-adjust-LINKDELAY-when-STP-is-on.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Obsoletes: initscripts-legacy <= 9.39
 Requires: /bin/awk, sed, coreutils
@@ -57,6 +58,7 @@ Currently, this consists of various memory checking code.
 %setup -q
 
 %patch0 -p1
+%patch1 -p1
 
 %build
 make
@@ -222,6 +224,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Wed Nov 12 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.51.3
+- adjust LINKDELAY when STP is on (#1162822)
+
 * Wed Mar 26 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.51-2
 - fedora-domainname service should use DefaultDependencies=no
 

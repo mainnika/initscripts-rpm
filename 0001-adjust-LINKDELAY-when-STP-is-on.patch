@@ -1,0 +1,63 @@
+From 9aae1ad52d7e92d4819ae0ee861e4ac7add39316 Mon Sep 17 00:00:00 2001
+From: Laine Stump <laine@redhat.com>
+Date: Tue, 11 Nov 2014 14:13:22 -0500
+Subject: [PATCH] adjust LINKDELAY when STP is on
+
+This resolves: https://bugzilla.redhat.com/show_bug.cgi?id=1162822
+
+When ifup is called on an interface that has BOOTPROTO=dhcp, ifup-eth
+will call network-functions:check_link_down() to wait for carrier on
+the interface before starting dhclient. If the interface happens to be
+a bridge device, carrier will not come on until at least one attached
+device is in "forwarding" mode. If the bridge has STP enabled, it
+takes at least $DELAY * 2 + 5 seconds (sometimes slightly longer) for
+any attached device to go into forwarding mode.
+
+However, check_link_down() will only wait for max(${LINKDELAY}, 5)
+seconds for carrier, and there are *many* existing configs that have
+STP enabled but no setting for LINKDELAY. Every one of those configs
+will now fail to ifup the bridge device.
+
+The solution implemented in this patch is for ifup-eth to set
+LINKDELAY to at least ${DELAY} * 2 + 7 when the device is a bridge an
+STP is enabled. Since check_link_down() returns within .5 sec of
+carrier coming up, the worst effect this could have would be to take
+longer to fail in the case of a config where carrier was *never* going
+to come up. Otherwise, it will not create any more delay than is
+already present in cases that currently work, and will cause many
+other configs to become unbroken.
+---
+ sysconfig/network-scripts/ifup-eth | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/sysconfig/network-scripts/ifup-eth b/sysconfig/network-scripts/ifup-eth
+index 8be5bff..078c7c4 100755
+--- a/sysconfig/network-scripts/ifup-eth
++++ b/sysconfig/network-scripts/ifup-eth
+@@ -1,6 +1,6 @@
+ #!/bin/bash
+ # Network Interface Configuration System
+-# Copyright (c) 1996-2010 Red Hat, Inc. all rights reserved.
++# Copyright (c) 1996-2014 Red Hat, Inc. all rights reserved.
+ #
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License, version 2,
+@@ -62,6 +62,15 @@ if [ "${TYPE}" = "Bridge" ]; then
+           value=${arg##*=};
+           echo $value > /sys/class/net/${DEVICE}/bridge/$key
+       done
++      # set LINKDELAY (used as timeout when calling check_link_down())
++      # to at least (${DELAY} * 2) + 7 if STP is enabled. This is the
++      # minimum time required for /sys/class/net/$REALDEVICE/carrier to
++      # become 1 after "ip link set dev $DEVICE up" is called.
++      if [ "${STP}" = "yes" -o "${STP}" = "on" ]; then
++          TMPD=7
++          [ -n "${DELAY}" ] && TMPD=$(expr ${DELAY} \* 2 + ${TMPD})
++          [ 0$LINKDELAY -lt $TMPD ] && LINKDELAY=$TMPD
++      fi
+ fi
+ 
+ # Create tap device.
+-- 
+1.8.3.1
+
