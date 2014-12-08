@@ -1,0 +1,56 @@
+From 30ecd15eb772de10f9c2f94cc9bad4eac5439d24 Mon Sep 17 00:00:00 2001
+From: Ashish Samant <ashish.samant@oracle.com>
+Date: Wed, 29 Oct 2014 17:47:29 -0700
+Subject: [PATCH] improve_check_for_bond_master_in_install_bonding_driver
+
+The current grep check (fgrep -sqx) in install_bonding_driver, to determine
+whether bond master exists, fails when there are multiple bond masters.
+The fix assumes that multiple bond masters are on different lines in the file
+"/sys/class/net/bonding_masters", while they are in fact on the same line.
+Since fgrep -sqx checks for the entire line,it will never match any one bond
+master within the line and always fail if there are multiple bonds.
+
+This patch improves the check by creating a new function, bond_master_exists()
+to handle this and other conditions.
+
+Orabug: 19897586
+
+Signed-off-by: Ashish Samant <ashish.samant@oracle.com>
+Signed-off-by: John Haxby <john.haxby@oracle.com>
+Acked-by: Mukesh Kacker <mukesh.kacker@oracle.com>
+---
+ sysconfig/network-scripts/network-functions | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/sysconfig/network-scripts/network-functions b/sysconfig/network-scripts/network-functions
+index 0e86efd..e6273bb 100644
+--- a/sysconfig/network-scripts/network-functions
++++ b/sysconfig/network-scripts/network-functions
+@@ -458,10 +458,22 @@ phy_wireless_device ()
+ 	cat /sys/class/net/$1/phy80211/name
+ }
+ 
++bond_master_exists ()
++{
++    local bond_name
++    [ -z "${1}" ] && return 1
++    [ ! -f /sys/class/net/bonding_masters ] && return 1
++
++    for bond_name in $(< /sys/class/net/bonding_masters); do
++       [ "${bond_name}" == "${1}" ] && return 0
++    done
++    return 1
++}
++
+ install_bonding_driver ()
+ {
+-   [ ! -f /sys/class/net/bonding_masters ] && ( modprobe bonding || return 1 )
+-   if ! fgrep -sqx "$1" /sys/class/net/bonding_masters; then
++   if ! bond_master_exists ${1}; then
++       modprobe bonding || return 1
+        echo "+$1" > /sys/class/net/bonding_masters 2>/dev/null
+    fi
+    (
+-- 
+1.8.3.1
+
