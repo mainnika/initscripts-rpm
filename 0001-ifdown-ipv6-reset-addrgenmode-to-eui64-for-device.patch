@@ -1,0 +1,24 @@
+From 7e548d51df2b8df098bc7584ad75258ac7064509 Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Tue, 16 Dec 2014 14:12:36 +0100
+Subject: [PATCH] ifdown-ipv6: reset addrgenmode to eui64 for device
+
+---
+ sysconfig/network-scripts/ifdown-ipv6 | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sysconfig/network-scripts/ifdown-ipv6 b/sysconfig/network-scripts/ifdown-ipv6
+index 7bfcfb3..d2207b7 100755
+--- a/sysconfig/network-scripts/ifdown-ipv6
++++ b/sysconfig/network-scripts/ifdown-ipv6
+@@ -66,6 +66,7 @@ fi
+ /sbin/sysctl -e -w net.ipv6.conf.$SYSCTLDEVICE.forwarding=0 >/dev/null 2>&1
+ /sbin/sysctl -e -w net.ipv6.conf.$SYSCTLDEVICE.accept_ra=0 >/dev/null 2>&1
+ /sbin/sysctl -e -w net.ipv6.conf.$SYSCTLDEVICE.accept_redirects=0 >/dev/null 2>&1
++/sbin/ip link set $DEVICE addrgenmode eui64 >/dev/null 2>&1
+ 
+ # Test status of tun6to4 device
+ ipv6_test_device_status tun6to4
+-- 
+1.8.3.1
+

@@ -1,0 +1,25 @@
+From 2444fc5a4060e4f78059b1bff9fa37a10b6fd648 Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Tue, 16 Dec 2014 12:14:08 +0100
+Subject: [PATCH] ifup: fix typo
+
+---
+ sysconfig/network-scripts/ifup | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sysconfig/network-scripts/ifup b/sysconfig/network-scripts/ifup
+index 911707e..bb58685 100755
+--- a/sysconfig/network-scripts/ifup
++++ b/sysconfig/network-scripts/ifup
+@@ -90,7 +90,7 @@ if [ "${VLAN}" = "yes" ] && [ "$ISALIAS" = "no" ] && [ -n $DEVICE ]; then
+         fi
+         MATCH='^vlan[0-9]{1,4}?'
+          if [[ "${DEVICE}" =~ $MATCH ]]; then
+-             VID=$(echo "${DEVICE}" | LC_ALL=C sed 's/^vlan0*//'):
++             VID=$(echo "${DEVICE}" | LC_ALL=C sed 's/^vlan0*//')
+              # PHYSDEV should be set in ifcfg-vlan* file
+              if test -z "$PHYSDEV"; then
+                 net_log $"PHYSDEV should be set for device ${DEVICE}"
+-- 
+1.8.3.1
+

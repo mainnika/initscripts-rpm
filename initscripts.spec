@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.56.1
 License: GPLv2
 Group: System Environment/Base
-Release: 5%{?dist}
+Release: 6%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -37,6 +37,8 @@ Provides: /sbin/service
 Patch1: 0001-ifup-vlan-fix-typo.patch
 Patch2: 0001-adjust-LINKDELAY-when-STP-is-on.patch
 Patch3: 0001-improve_check_for_bond_master_in_install_bonding_dri.patch
+Patch4: 0001-ifdown-ipv6-reset-addrgenmode-to-eui64-for-device.patch
+Patch5: 0001-ifup-fix-typo.patch
 
 %description
 This package contains the script that activates and deactivates most
@@ -58,6 +60,8 @@ Currently, this consists of various memory checking code.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 make
@@ -196,6 +200,10 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Tue Dec 16 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56.1-6
+- ifdown-ipv6: reset addrgenmode to eui64 for device
+- ifup: fix typo
+
 * Mon Dec 08 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56.1-5
 - improve check for bond_master in install bonding driver
 
