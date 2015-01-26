@@ -1,13 +1,12 @@
 Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.60
+Version: 9.61
 License: GPLv2
 Group: System Environment/Base
 Release: 1%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-Obsoletes: initscripts-legacy <= 9.39
 Requires: /bin/awk, sed, coreutils
 Requires: grep
 Requires: module-init-tools
@@ -15,14 +14,12 @@ Requires: util-linux >= 2.16
 Requires: bash >= 3.0
 Requires: procps-ng >= 3.3.8-16
 Conflicts: systemd < 216-3
-Conflicts: systemd-units < 23-1
 Conflicts: lvm2 < 2.02.98-3
 Conflicts: dmraid < 1.0.0.rc16-18
 Requires: systemd
 Requires: iproute, /sbin/arping, findutils
 # Not strictly required, but nothing else requires it
 Requires: /etc/system-release
-Requires: udev >= 125-1
 Requires: cpio
 Requires: hostname
 Conflicts: ipsec-tools < 0.8.0-2
@@ -31,7 +28,7 @@ Conflicts: ppp < 2.4.6-4
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
-BuildRequires: glib2-devel popt-devel gettext pkgconfig
+BuildRequires: glib2-devel popt-devel gettext pkgconfig systemd
 Provides: /sbin/service
 
 %description
@@ -56,141 +53,142 @@ Currently, this consists of various memory checking code.
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make ROOT=$RPM_BUILD_ROOT SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} install
+make ROOT=%{buildroot} SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} install
 
 %find_lang %{name}
 
 %ifnarch s390 s390x
 rm -f \
- $RPM_BUILD_ROOT/etc/sysconfig/network-scripts/ifup-ctc \
+  %{buildroot}%{_sysconfdir}/sysconfig/network-scripts/ifup-ctc \
 %else
 rm -f \
- $RPM_BUILD_ROOT/etc/sysconfig/init.s390
+  %{buildroot}%{_sysconfdir}/sysconfig/init.s390
 %endif
 
-rm -f $RPM_BUILD_ROOT/etc/rc.d/rc.local $RPM_BUILD_ROOT/etc/rc.local
-touch $RPM_BUILD_ROOT/etc/rc.d/rc.local
-chmod 755 $RPM_BUILD_ROOT/etc/rc.d/rc.local
+rm -f %{buildroot}%{_sysconfdir}/rc.d/rc.local %{buildroot}%{_sysconfdir}/rc.local
+touch %{buildroot}%{_sysconfdir}/rc.d/rc.local
+chmod 755 %{buildroot}%{_sysconfdir}/rc.d/rc.local
 
 %post
-/usr/sbin/chkconfig --add network
-/usr/sbin/chkconfig --add netconsole
+/usr/sbin/chkconfig --add network > /dev/null 2>&1 || :
+/usr/sbin/chkconfig --add netconsole > /dev/null 2>&1 || :
 if [ $1 -eq 1 ]; then
-        /usr/bin/systemctl daemon-reload > /dev/null 2>&1 || :
+  /usr/bin/systemctl daemon-reload > /dev/null 2>&1 || :
 fi
 
 %preun
 if [ $1 = 0 ]; then
-  /usr/sbin/chkconfig --del network
-  /usr/sbin/chkconfig --del netconsole
+  /usr/sbin/chkconfig --del network > /dev/null 2>&1 || :
+  /usr/sbin/chkconfig --del netconsole > /dev/null 2>&1 || :
 fi
-
-%triggerun -- initscripts < 7.62
-/usr/sbin/chkconfig --del random
-/usr/sbin/chkconfig --del rawdevices
-exit 0
 
 %postun
 if [ $1 -ge 1 ]; then
   /usr/bin/systemctl daemon-reload > /dev/null 2>&1 || :
 fi
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %files -f %{name}.lang
 %defattr(-,root,root)
-%dir /etc/sysconfig/network-scripts
-%config(noreplace) %verify(not md5 mtime size) /etc/adjtime
-%config(noreplace) /etc/sysconfig/init
-%config(noreplace) /etc/sysconfig/netconsole
-%config(noreplace) /etc/sysconfig/readonly-root
-/etc/sysconfig/network-scripts/ifdown
-/usr/sbin/ifdown
-/etc/sysconfig/network-scripts/ifdown-post
-/etc/sysconfig/network-scripts/ifup
-/usr/sbin/ifup
-%dir /etc/sysconfig/console
-%dir /etc/sysconfig/modules
-/etc/sysconfig/network-scripts/network-functions
-/etc/sysconfig/network-scripts/network-functions-ipv6
-/etc/sysconfig/network-scripts/init.ipv6-global
-%config(noreplace) /etc/sysconfig/network-scripts/ifcfg-lo
-/etc/sysconfig/network-scripts/ifup-post
-/etc/sysconfig/network-scripts/ifup-routes
-/etc/sysconfig/network-scripts/ifdown-routes
-/etc/sysconfig/network-scripts/ifup-plip
-/etc/sysconfig/network-scripts/ifup-plusb
-/etc/sysconfig/network-scripts/ifup-bnep
-/etc/sysconfig/network-scripts/ifdown-bnep
-/etc/sysconfig/network-scripts/ifup-eth
-/etc/sysconfig/network-scripts/ifdown-eth
-/etc/sysconfig/network-scripts/ifup-ipv6
-/etc/sysconfig/network-scripts/ifdown-ipv6
-/etc/sysconfig/network-scripts/ifup-sit
-/etc/sysconfig/network-scripts/ifdown-sit
-/etc/sysconfig/network-scripts/ifup-tunnel
-/etc/sysconfig/network-scripts/ifdown-tunnel
-/etc/sysconfig/network-scripts/ifup-aliases
-/etc/sysconfig/network-scripts/ifup-ippp
-/etc/sysconfig/network-scripts/ifdown-ippp
-/etc/sysconfig/network-scripts/ifup-wireless
-/etc/sysconfig/network-scripts/ifup-isdn
-/etc/sysconfig/network-scripts/ifdown-isdn
+%dir %{_sysconfdir}/sysconfig/network-scripts
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/adjtime
+%config(noreplace) %{_sysconfdir}/sysconfig/init
+%config(noreplace) %{_sysconfdir}/sysconfig/netconsole
+%config(noreplace) %{_sysconfdir}/sysconfig/readonly-root
+%{_sysconfdir}/sysconfig/network-scripts/ifdown
+%{_sbindir}/ifdown
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-post
+%{_sysconfdir}/sysconfig/network-scripts/ifup
+%{_sbindir}/ifup
+%dir %{_sysconfdir}/sysconfig/console
+%dir %{_sysconfdir}/sysconfig/modules
+%{_sysconfdir}/sysconfig/network-scripts/network-functions
+%{_sysconfdir}/sysconfig/network-scripts/network-functions-ipv6
+%{_sysconfdir}/sysconfig/network-scripts/init.ipv6-global
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifcfg-lo
+%{_sysconfdir}/sysconfig/network-scripts/ifup-post
+%{_sysconfdir}/sysconfig/network-scripts/ifup-routes
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-routes
+%{_sysconfdir}/sysconfig/network-scripts/ifup-plip
+%{_sysconfdir}/sysconfig/network-scripts/ifup-plusb
+%{_sysconfdir}/sysconfig/network-scripts/ifup-bnep
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-bnep
+%{_sysconfdir}/sysconfig/network-scripts/ifup-eth
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-eth
+%{_sysconfdir}/sysconfig/network-scripts/ifup-ipv6
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-ipv6
+%{_sysconfdir}/sysconfig/network-scripts/ifup-sit
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-sit
+%{_sysconfdir}/sysconfig/network-scripts/ifup-tunnel
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-tunnel
+%{_sysconfdir}/sysconfig/network-scripts/ifup-aliases
+%{_sysconfdir}/sysconfig/network-scripts/ifup-ippp
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-ippp
+%{_sysconfdir}/sysconfig/network-scripts/ifup-wireless
+%{_sysconfdir}/sysconfig/network-scripts/ifup-isdn
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-isdn
 %ifarch s390 s390x
-/etc/sysconfig/network-scripts/ifup-ctc
+%{_sysconfdir}/sysconfig/network-scripts/ifup-ctc
 %endif
-%config(noreplace) /etc/networks
-/etc/rwtab
-%dir /etc/rwtab.d
-/etc/statetab
-%dir /etc/statetab.d
-/usr/lib/systemd/fedora-*
-/usr/lib/systemd/system/*
-%dir /etc/rc.d
-%dir /etc/rc.d/rc[0-9].d
-/etc/rc[0-9].d
-%dir /etc/rc.d/init.d
-/etc/rc.d/init.d/*
-%ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/rc.d/rc.local
-/usr/lib/sysctl.d/00-system.conf
-%exclude /etc/profile.d/debug*
-/etc/profile.d/*
-/usr/sbin/sys-unconfig
-/usr/bin/ipcalc
-/usr/bin/usleep
-%attr(4755,root,root) /usr/sbin/usernetctl
-/usr/sbin/consoletype
-/usr/sbin/genhostid
-/usr/sbin/sushell
-%attr(2755,root,root) /usr/sbin/netreport
-/usr/lib/udev/rules.d/*
-/usr/lib/udev/rename_device
-/usr/sbin/service
+%config(noreplace) %{_sysconfdir}/networks
+%{_sysconfdir}/rwtab
+%dir %{_sysconfdir}/rwtab.d
+%{_sysconfdir}/statetab
+%dir %{_sysconfdir}/statetab.d
+%{_prefix}/lib/systemd/fedora-*
+%{_prefix}/lib/systemd/system/*
+%dir %{_sysconfdir}/rc.d
+%dir %{_sysconfdir}/rc.d/rc[0-9].d
+%{_sysconfdir}/rc[0-9].d
+%dir %{_sysconfdir}/rc.d/init.d
+%{_sysconfdir}/rc.d/init.d/*
+%ghost %verify(not md5 size mtime) %config(noreplace,missingok) %{_sysconfdir}/rc.d/rc.local
+%{_prefix}/lib/sysctl.d/00-system.conf
+%exclude %{_sysconfdir}/profile.d/debug*
+%{_sysconfdir}/profile.d/*
+%{_sbindir}/sys-unconfig
+%{_bindir}/ipcalc
+%{_bindir}/usleep
+%attr(4755,root,root) %{_sbindir}/usernetctl
+%{_sbindir}/consoletype
+%{_sbindir}/genhostid
+%{_sbindir}/sushell
+%attr(2755,root,root) %{_sbindir}/netreport
+%{_udevrulesdir}/*
+%{_prefix}/lib/udev/rename_device
+%{_sbindir}/service
 %{_mandir}/man*/*
 %dir %attr(775,root,root) /var/run/netreport
-%dir /etc/NetworkManager
-%dir /etc/NetworkManager/dispatcher.d
-/etc/NetworkManager/dispatcher.d/00-netreport
+%dir %{_sysconfdir}/NetworkManager
+%dir %{_sysconfdir}/NetworkManager/dispatcher.d
+%{_sysconfdir}/NetworkManager/dispatcher.d/00-netreport
 %doc sysconfig.txt sysvinitfiles static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto changes.ipv6
 %doc examples
 %{!?_licensedir:%global license %%doc}
 %license COPYING
-/var/lib/stateless
-%dir /usr/lib/tmpfiles.d
-/usr/lib/tmpfiles.d/initscripts.conf
-%dir /usr/libexec/initscripts
-%dir /usr/libexec/initscripts/legacy-actions
+%{_sharedstatedir}/stateless
+%{_tmpfilesdir}/initscripts.conf
+%dir %{_libexecdir}/initscripts
+%dir %{_libexecdir}/initscripts/legacy-actions
 
 %files -n debugmode
 %defattr(-,root,root)
-%config(noreplace) /etc/sysconfig/debug
-/etc/profile.d/debug*
+%config(noreplace) %{_sysconfdir}/sysconfig/debug
+%{_sysconfdir}/profile.d/debug*
 
 %changelog
+* Thu Jan 22 2015 Lukáš Nykrýn <lnykryn@redhat.com> - 9.61-1
+- specfile cleanup
+- ifup-ipv6: set accept_ra to 2 when IPV6FORWARDING=yes and IPV6_AUTOCONF=yes
+- ifup-post: check resolve.conf also with DNS2
+- ifup-aliases: do not fail when only ipv6 addr is specified
+- fedora-import-state.service: run a little bit later
+- fedora-readonly: Updates for systemd random-seed handling
+- network-functions: is_available_wait should wait even in the case that is_available returns 2
+- ifdown-post: remove resolv.conf only in specific cases
+- network-functions: fix check in install_bonding_driver
+
 * Tue Dec 16 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.60-1
-- improve_check_for_bond_master_in_install_bonding_driver
+- improve check for bond master in install bonding driver
 - network-functions: reeplace iwconfig with iw
 - ifup: fix typo
 - ifdown-ipv6: reset addrgenmode to eui64 for device
