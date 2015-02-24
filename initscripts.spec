@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.56.1
 License: GPLv2
 Group: System Environment/Base
-Release: 6%{?dist}
+Release: 7%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -39,6 +39,7 @@ Patch2: 0001-adjust-LINKDELAY-when-STP-is-on.patch
 Patch3: 0001-improve_check_for_bond_master_in_install_bonding_dri.patch
 Patch4: 0001-ifdown-ipv6-reset-addrgenmode-to-eui64-for-device.patch
 Patch5: 0001-ifup-fix-typo.patch
+Patch6: 0001-network-functions-is_available_wait-should-wait-even.patch
 
 %description
 This package contains the script that activates and deactivates most
@@ -62,6 +63,7 @@ Currently, this consists of various memory checking code.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 %build
 make
@@ -200,6 +202,10 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Tue Feb 24 2015 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56.1-7
+- network-functions: is_available_wait should wait even in the case that
+  is_available returns 2
+
 * Tue Dec 16 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 9.56.1-6
 - ifdown-ipv6: reset addrgenmode to eui64 for device
 - ifup: fix typo

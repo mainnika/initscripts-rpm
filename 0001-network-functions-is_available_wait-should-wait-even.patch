@@ -1,0 +1,38 @@
+From 1f230a3d2e2733e30577c91645005801ab2c0f40 Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Mon, 12 Jan 2015 12:49:46 +0100
+Subject: [PATCH] network-functions: is_available_wait should wait even in the
+ case that is_available returns 2
+
+---
+ sysconfig/network-scripts/network-functions | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/sysconfig/network-scripts/network-functions b/sysconfig/network-scripts/network-functions
+index 1ecbcfc..9a5e359 100644
+--- a/sysconfig/network-scripts/network-functions
++++ b/sysconfig/network-scripts/network-functions
+@@ -336,18 +336,16 @@ is_available_wait ()
+ 
+     local retry=${2##*[!0-9]*}
+ 
+-    is_available $1
++    is_available $1 && return 0
+     ret=$?
+ 
+-    [ 0"$ret" -ne 1 ] && return $ret
+-
+     while [ 0"$retry" -gt 0 ]; do
+         sleep 1
+         [ -d "/sys/class/net/$1" ] && return 0
+         retry=$(($retry -1))
+     done
+ 
+-    return 1
++    return $ret
+ }
+ 
+ need_hostname ()
+-- 
+1.8.3.1
+
