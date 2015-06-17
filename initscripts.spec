@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.63
 License: GPLv2
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -176,6 +176,9 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.63-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Mon May 18 2015 Lukáš Nykrýn <lnykryn@redhat.com> - 9.63-1
 - remove ipcalc, it has its own package now
 - network: tell NM to reload its configuration during start
