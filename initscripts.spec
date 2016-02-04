@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.65
 License: GPLv2
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -176,6 +176,9 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 9.65-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Mon Dec 07 2015 Lukáš Nykrýn <lnykryn@redhat.com> - 9.65-1
 - init.d/functions: end with 0
 - fedora-loadmodules: we don't have readahead anymore
