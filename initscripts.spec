@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.69
 License: GPLv2
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://fedorahosted.org/releases/i/n/initscripts/
 Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -177,6 +177,9 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 9.69-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Tue Aug 30 2016 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.69-1
 - fedora-import-state should no longer try to create folder with empty name (#1370259)
 
