@@ -1,12 +1,11 @@
 Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.69
+Version: 9.70
 License: GPLv2
 Group: System Environment/Base
-Release: 2%{?dist}
-URL: http://fedorahosted.org/releases/i/n/initscripts/
-Source: http://fedorahosted.org/releases/i/n/initscripts/initscripts-%{version}.tar.bz2
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+Release: 1%{?dist}
+URL: https://github.com/fedora-sysv/initscripts
+Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Requires: /bin/awk, sed, coreutils
 Requires: grep
 Requires: module-init-tools
@@ -177,8 +176,8 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
-* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 9.69-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+* Fri Feb 24 2017 Lukáš Nykrýn <lnykryn@redhat.com> - 9.70-1
+- move source to github
 
 * Tue Aug 30 2016 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.69-1
 - fedora-import-state should no longer try to create folder with empty name (#1370259)
