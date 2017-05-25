@@ -1,6 +1,6 @@
 Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.70
+Version: 9.71
 License: GPLv2
 Group: System Environment/Base
 Release: 1%{?dist}
@@ -131,9 +131,9 @@ fi
 %{_sysconfdir}/sysconfig/network-scripts/ifup-ctc
 %endif
 %config(noreplace) %{_sysconfdir}/networks
-%{_sysconfdir}/rwtab
+%config(noreplace) %{_sysconfdir}/rwtab
+%config(noreplace) %{_sysconfdir}/statetab
 %dir %{_sysconfdir}/rwtab.d
-%{_sysconfdir}/statetab
 %dir %{_sysconfdir}/statetab.d
 %{_prefix}/lib/systemd/fedora-*
 %{_prefix}/lib/systemd/system/*
@@ -176,6 +176,21 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
+* Wed May 24 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.71-1
+- usleep: print deprecation warning from now on
+- sysconfig.txt: mention previously introduced NO_DHCP_HOSTNAME option
+- DHCP_FQDN and DHCP_SEND_HOSTNAME introduced
+- re-add missing $HOSTNAME initialization
+- ifup: add support for VLAN_EGRESS_PRIORITY_MAP
+- specfile: mark 'rwtab' and 'statetab' as config files
+- killproc/status: add missing '-b <binary>' option
+- ifdown-eth: we need to flush global scope as well
+- ifup-eth: remove quote marks
+- po: download latest translations from zanata
+- rwtab: add /var/lib/systemd/timers
+- Update initscripts.pot
+- Port headers in xgettext_sh.py to 2017
+
 * Fri Feb 24 2017 Lukáš Nykrýn <lnykryn@redhat.com> - 9.70-1
 - move source to github
 
