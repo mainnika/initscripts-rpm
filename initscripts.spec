@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.72
 License: GPLv2
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: https://github.com/fedora-sysv/initscripts
 Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Requires: /bin/awk, sed, coreutils
@@ -176,6 +176,9 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 9.72-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Thu May 25 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.72-1
 - rename_device.c: rewrite of isCfg() function
 - Add *.old to list of ignored files
