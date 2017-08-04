@@ -1,9 +1,9 @@
 Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.72
+Version: 9.74
 License: GPLv2
 Group: System Environment/Base
-Release: 3%{?dist}
+Release: 1%{?dist}
 URL: https://github.com/fedora-sysv/initscripts
 Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Requires: /bin/awk, sed, coreutils
@@ -143,7 +143,6 @@ fi
 %dir %{_sysconfdir}/rc.d/init.d
 %{_sysconfdir}/rc.d/init.d/*
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) %{_sysconfdir}/rc.d/rc.local
-%{_prefix}/lib/sysctl.d/00-system.conf
 %exclude %{_sysconfdir}/profile.d/debug*
 %{_sysconfdir}/profile.d/*
 %{_sbindir}/sys-unconfig
@@ -176,11 +175,16 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
-* Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 9.72-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+* Fri Aug 04 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.74-1
+- Makefile: fix whitespace error in commit b119d37d1
 
-* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 9.72-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+* Thu Aug 03 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.73-1
+- Makefile: replace /var/run with /run
+- Replace /var/run with /run everywhere
+- Update references to sysctl.conf
+- Drop sysctl.d/00-system.conf
+- Drop 256term.{sh,csh}
+- ARPUPDATE introduced
 
 * Thu May 25 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.72-1
 - rename_device.c: rewrite of isCfg() function
