@@ -1,6 +1,6 @@
 Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.75
+Version: 9.76
 License: GPLv2
 Group: System Environment/Base
 Release: 1%{?dist}
@@ -156,7 +156,7 @@ fi
 %{_prefix}/lib/udev/rename_device
 %{_sbindir}/service
 %{_mandir}/man*/*
-%dir %attr(775,root,root) /var/run/netreport
+%dir %attr(775,root,root) /run/netreport
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
 %{_sysconfdir}/NetworkManager/dispatcher.d/00-netreport
@@ -175,6 +175,10 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
+* Mon Aug 07 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.76-1
+- Makefile: return make archive for testing purposes
+- Revert "Makefile: replace /var/run with /run"
+
 * Mon Aug 07 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.75-1
 - Makefile: $ROOT variable is now empty by default
 - Makefile: Fix additional error in commit b119d37d1
