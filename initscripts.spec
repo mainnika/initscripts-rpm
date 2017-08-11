@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.76
 License: GPLv2
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 1%{?dist}.1
 URL: https://github.com/fedora-sysv/initscripts
 Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Requires: /bin/awk, sed, coreutils
@@ -178,6 +178,10 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
+* Fri Aug 11 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 9.76-1.1
+- Rebuild after builds with rpm 4.14 were untagged
+  (see https://bugzilla.redhat.com/show_bug.cgi?id=1480407)
+
 * Mon Aug 07 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.76-1
 - Makefile: return make archive for testing purposes
 - Revert "Makefile: replace /var/run with /run"
