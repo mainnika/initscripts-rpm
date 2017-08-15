@@ -1,9 +1,9 @@
 Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.76
+Version: 9.77
 License: GPLv2
 Group: System Environment/Base
-Release: 1%{?dist}.1
+Release: 1%{?dist}
 URL: https://github.com/fedora-sysv/initscripts
 Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Requires: /bin/awk, sed, coreutils
@@ -129,6 +129,7 @@ fi
 %{_sysconfdir}/sysconfig/network-scripts/ifdown-isdn
 %ifarch s390 s390x
 %{_sysconfdir}/sysconfig/network-scripts/ifup-ctc
+%{_prefix}/lib/sysctl.d/00-system.conf
 %endif
 %config(noreplace) %{_sysconfdir}/networks
 %config(noreplace) %{_sysconfdir}/rwtab
@@ -143,9 +144,6 @@ fi
 %dir %{_sysconfdir}/rc.d/init.d
 %{_sysconfdir}/rc.d/init.d/*
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) %{_sysconfdir}/rc.d/rc.local
-%ifarch s390 s390x
-%{_prefix}/lib/sysctl.d/00-system.conf
-%endif
 %exclude %{_sysconfdir}/profile.d/debug*
 %{_sysconfdir}/profile.d/*
 %{_sbindir}/sys-unconfig
@@ -178,9 +176,9 @@ fi
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
-* Fri Aug 11 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 9.76-1.1
-- Rebuild after builds with rpm 4.14 were untagged
-  (see https://bugzilla.redhat.com/show_bug.cgi?id=1480407)
+* Tue Aug 15 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.77-1
+- specfile: Fix failing build for s390* architecture
+- Drop no longer supported SPARC architecture
 
 * Mon Aug 07 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.76-1
 - Makefile: return make archive for testing purposes
