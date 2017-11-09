@@ -1,6 +1,6 @@
 Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.77
+Version: 9.78
 License: GPLv2
 Group: System Environment/Base
 Release: 1%{?dist}
@@ -19,8 +19,6 @@ Conflicts: dmraid < 1.0.0.rc16-18
 Conflicts: policycoreutils < 2.5-6
 Requires: systemd
 Requires: iproute, /sbin/arping, findutils
-# Not strictly required, but nothing else requires it
-Requires: /etc/system-release
 Requires: cpio
 Requires: hostname
 Conflicts: ipsec-tools < 0.8.0-2
@@ -29,23 +27,13 @@ Conflicts: ppp < 2.4.6-4
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
+%{?systemd_requires}
 BuildRequires: glib2-devel popt-devel gettext pkgconfig systemd
 Provides: /sbin/service
 
 %description
 This package contains the script that activates and deactivates most
 network interfaces, some utilities, and other legacy files.
-
-%package -n debugmode
-Summary: Scripts for running in debug mode
-Requires: initscripts
-Group: System Environment/Base
-
-%description -n debugmode
-The debugmode package contains some basic scripts that are used to run
-the system in a debug mode.
-
-Currently, this consists of various memory checking code.
 
 %prep
 %setup -q
@@ -61,9 +49,6 @@ make ROOT=%{buildroot} SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} 
 %ifnarch s390 s390x
 rm -f \
   %{buildroot}%{_sysconfdir}/sysconfig/network-scripts/ifup-ctc \
-%else
-rm -f \
-  %{buildroot}%{_sysconfdir}/sysconfig/init.s390
 %endif
 
 rm -f %{buildroot}%{_sysconfdir}/rc.d/rc.local %{buildroot}%{_sysconfdir}/rc.local
@@ -71,28 +56,33 @@ touch %{buildroot}%{_sysconfdir}/rc.d/rc.local
 chmod 755 %{buildroot}%{_sysconfdir}/rc.d/rc.local
 
 %post
+%systemd_post fedora-import-state.service fedora-loadmodules.service fedora-readonly.service
+
 /usr/sbin/chkconfig --add network > /dev/null 2>&1 || :
 /usr/sbin/chkconfig --add netconsole > /dev/null 2>&1 || :
-if [ $1 -eq 1 ]; then
-  /usr/bin/systemctl daemon-reload > /dev/null 2>&1 || :
-fi
 
 %preun
+%systemd_preun fedora-import-state.service fedora-loadmodules.service fedora-readonly.service
+
 if [ $1 = 0 ]; then
   /usr/sbin/chkconfig --del network > /dev/null 2>&1 || :
   /usr/sbin/chkconfig --del netconsole > /dev/null 2>&1 || :
 fi
 
 %postun
-if [ $1 -ge 1 ]; then
-  /usr/bin/systemctl daemon-reload > /dev/null 2>&1 || :
+%systemd_postun fedora-import-state.service fedora-loadmodules.service fedora-readonly.service
+
+# This should be removed in Rawhide for Fedora 29:
+%triggerun -- initscripts < 9.78
+if [ $1 -gt 1 ]; then
+  systemctl enable fedora-import-state.service fedora-readonly.service &> /dev/null || :
+  echo -e "\nUPGRADE: Automatically re-enabling default systemd units: fedora-import-state.service fedora-readonly.service\n" || :
 fi
 
 %files -f %{name}.lang
 %defattr(-,root,root)
 %dir %{_sysconfdir}/sysconfig/network-scripts
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/adjtime
-%config(noreplace) %{_sysconfdir}/sysconfig/init
 %config(noreplace) %{_sysconfdir}/sysconfig/netconsole
 %config(noreplace) %{_sysconfdir}/sysconfig/readonly-root
 %{_sysconfdir}/sysconfig/network-scripts/ifdown
@@ -129,7 +119,6 @@ fi
 %{_sysconfdir}/sysconfig/network-scripts/ifdown-isdn
 %ifarch s390 s390x
 %{_sysconfdir}/sysconfig/network-scripts/ifup-ctc
-%{_prefix}/lib/sysctl.d/00-system.conf
 %endif
 %config(noreplace) %{_sysconfdir}/networks
 %config(noreplace) %{_sysconfdir}/rwtab
@@ -144,7 +133,6 @@ fi
 %dir %{_sysconfdir}/rc.d/init.d
 %{_sysconfdir}/rc.d/init.d/*
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) %{_sysconfdir}/rc.d/rc.local
-%exclude %{_sysconfdir}/profile.d/debug*
 %{_sysconfdir}/profile.d/*
 %{_sbindir}/sys-unconfig
 %{_bindir}/usleep
@@ -170,12 +158,22 @@ fi
 %dir %{_libexecdir}/initscripts
 %dir %{_libexecdir}/initscripts/legacy-actions
 
-%files -n debugmode
-%defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/sysconfig/debug
-%{_sysconfdir}/profile.d/debug*
-
 %changelog
+* Wed Nov 08 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.78-1
+- specfile: drop dependancy on /etc/system-release
+- ifup-post: always update nameserver & search entries in /etc/resolv.conf
+- network-scripts: forward DBus calls to /dev/null
+- Spelling fixes
+- Tell git to ignore *.o
+- Use grep -E instead of deprecated egrep
+- Avoid some unnecessary stat calls
+- systemd/system: symlinks for fedora-* services removed
+- network-scripts: firewall-cmd replaced with DBus calls
+- 'debugmode' subpackage dropped completely
+- sysconfig/init* files dropped
+- sysctl.conf.s390 dropped
+- usleep: change the error message to print the full replacement commandline
+
 * Tue Aug 15 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.77-1
 - specfile: Fix failing build for s390* architecture
 - Drop no longer supported SPARC architecture
@@ -410,7 +408,7 @@ ng
 
 * Fri May 31 2013 Lukáš Nykrýn <lnykryn@redhat.com> - 9.47-1
 - network-functions: to determine state of nscd check socket not lock (#960779)
-- sysconfig.txt advised saslauthd -a instad of -v
+- sysconfig.txt advised saslauthd -a instead of -v
 - update translations from transifex
 - drop translation for other initscripts
 - tweak ifup/ifdown usage and man page (#961917)
@@ -1056,7 +1054,7 @@ ng
   by booting)
 - serial: add a crude hack to wait for runlevels to finish (#437379)
 - serial: frob /etc/securetty when necessary (#437381)
-- add a upstart-specific inittab
+- add an upstart-specific inittab
 - translation updates: as, bn_IN, cs, de, es, fi, fr, gu, hi, it, ja, kn, ml, mr, nb,
   nl, pa, pl, pt_BR, ru, sk, sr, ta, te, zh_CN
 
@@ -1547,7 +1545,7 @@ ng
 - network-functions: don't error out if hotplug doesn't exist (#140008)
 - ifup: always return errors on trying to bring up nonexistent devices (#131461)
 - ifup: fix error message (#143674)
-- rc.sysinit: add a autorelabel boot target (#154496)
+- rc.sysinit: add an autorelabel boot target (#154496)
 - prefdm: if something else is specified as $DISPLAYMANAGER, try that (#147304)
 - remove support for the old firewall type
 - network: optimize some (#138557, <drepper@redhat.com>)
@@ -1873,7 +1871,7 @@ ng
 - readonly root fixes (<alexl@redhat.com>)
 
 * Tue May 25 2004 Karsten Hopp <karsten@redhat.de> 7.56-1
-- special TYPE for qeth devices to differenciate them from ethX
+- special TYPE for qeth devices to differentiate them from ethX
 
 * Mon May 24 2004 Bill Nottingham <notting@redhat.com>
 - fix pppd vs. ppp typo in conflicts (#123680)
@@ -2397,7 +2395,7 @@ ng
 
 * Sun Sep  2 2001 Than Ngo <than@redhat.com>
 - add ISDN patches from pekkas@netcore.fi and pb@bieringer.de (bug #52491)
-- fix handling of ISDN LSZ Compresssion
+- fix handling of ISDN LSZ Compression
 
 * Thu Aug 30 2001 Than Ngo <than@redhat.com>
 - po/de.po: fix typo bug, lo instead 1o
