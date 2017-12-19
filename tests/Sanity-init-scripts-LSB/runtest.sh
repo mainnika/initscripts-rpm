@@ -35,6 +35,7 @@ PACKAGE="initscripts"
 
 SRV_NETCONSOLE=netconsole
 SRV_NETFS=netfs
+TRG_REMOTEFS=remote-fs.target
 SRV_NETWORK=network
 
 rlJournalStart
@@ -57,13 +58,13 @@ if ls /lib*/modules/*/kernel/drivers/net/netconsole.ko*; then
         SERVICE=$SRV_NETCONSOLE
         rlServiceStop $SERVICE
         rlLog ">>>>>>>>> service start"
-        rlRun "service $SERVICE start" 0 " Service must start without problem"
+        rlRun "service $SERVICE start" 0 " Service must start without problem "
         rlRun "service $SERVICE status" 0 " Then Status command "
         rlRun "service $SERVICE start" 0 " Already started service "
         rlRun "service $SERVICE status" 0 " Again status command "
 
         rlLog ">>>>>>>>> service restart"
-        rlRun "service $SERVICE restart" 0 " Restarting of service"
+        rlRun "service $SERVICE restart" 0 " Restarting of service "
         rlRun "service $SERVICE status" 0 " Status command "
 
         rlLog ">>>>>>>>> service stop"
@@ -74,7 +75,7 @@ if ls /lib*/modules/*/kernel/drivers/net/netconsole.ko*; then
 
         rlLog ">>>>>>>>> insufficient rights"
         rlRun "service $SERVICE start " 0 " Starting service for restarting under nonpriv user "
-        rlRun "su testuserqa -c 'service $SERVICE restart'" 1 "Insufficient rights, restarting resrvice under nonprivileged user must fail"
+        rlRun "su testuserqa -c 'service $SERVICE restart'" 1 "Insufficient rights, restarting resrvice under nonprivileged user must fail "
 
         rlLog ">>>>>>>>> operations"
         rlServiceStop $SERVICE
@@ -86,7 +87,7 @@ if ls /lib*/modules/*/kernel/drivers/net/netconsole.ko*; then
         rlRun "service $SERVICE force-reload" 0 " Service have to implement force-reload function "
 
         rlLog ">>>>>>>>> nonexist operations"
-        rlRun "service $SERVICE noexistop" 2 " Testing proper return code when nonexisting function"
+        rlRun "service $SERVICE noexistop" 2 " Testing proper return code when nonexisting function "
 
         rlServiceRestore $SERVICE
     fi # rhel 6 or less
@@ -107,13 +108,13 @@ fi
             SERVICE=$SRV_NETFS
             rlServiceStop $SERVICE
             rlLog ">>>>>>>>> service start"
-            rlRun "service $SERVICE start" 0 " Service must start without problem"
+            rlRun "service $SERVICE start" 0 " Service must start without problem "
             rlRun "service $SERVICE status" 0 " Then Status command "
             rlRun "service $SERVICE start" 0 " Already started service "
             rlRun "service $SERVICE status" 0 " Again status command "
     
             rlLog ">>>>>>>>> service restart"
-            rlRun "service $SERVICE restart" 0 " Restarting of service"
+            rlRun "service $SERVICE restart" 0 " Restarting of service "
             rlRun "service $SERVICE status" 0 " Status command "
     
             rlLog ">>>>>>>>> service stop"
@@ -124,7 +125,7 @@ fi
     
             rlLog ">>>>>>>>> insufficient rights"
             rlRun "service $SERVICE start " 0 " Starting service for restarting under nonpriv user "
-            rlRun "su testuserqa -c 'service $SERVICE restart'" 4 "Insufficient rights, restarting resrvice under nonprivileged user must fail"
+            rlRun "su testuserqa -c 'service $SERVICE restart'" 4 "Insufficient rights, restarting resrvice under nonprivileged user must fail "
     
             rlLog ">>>>>>>>> operations"
             rlServiceStop $SERVICE
@@ -133,12 +134,49 @@ fi
             rlRun "service $SERVICE status" 0 " Service have to implement status function "
     
             rlLog ">>>>>>>>> nonexist operations"
-            rlRun "service $SERVICE noexistop" 2 " Testing proper return code when nonexisting function"
+            rlRun "service $SERVICE noexistop" 2 " Testing proper return code when nonexisting function "
     
             rlServiceRestore $SERVICE
-	fi #RHEL6 and lower
     
         rlPhaseEnd
+    else
+        rlPhaseStartTest "remote-fs target LSB compliance test"
+
+            TARGET=$TRG_REMOTEFS
+            rlServiceStop $TARGET
+            rlLog ">>>>>>>>> target start"
+            rlRun "service $TARGET start" 0 " Target must start without problem "
+            rlRun "service $TARGET status" 0 " Then Status command "
+            rlRun "service $TARGET start" 0 " Already started target "
+            rlRun "service $TARGET status" 0 " Again status command "
+
+            rlLog ">>>>>>>>> target restart"
+            rlRun "service $TARGET restart" 0 " Restarting target "
+            rlRun "service $TARGET status" 0 " Status command "
+
+            rlLog ">>>>>>>>> target stop"
+            rlRun "service $TARGET stop" 0 " Stopping target "
+            rlRun "service $TARGET status" 3 " Status of stopped target "
+            rlRun "service $TARGET stop" 0 " Stopping target again "
+            rlRun "service $TARGET status" 3 " Status of stopped target "
+
+            rlLog ">>>>>>>>> insufficient rights"
+            rlRun "service $TARGET start " 0 " Starting target for restarting under nonpriv user "
+            rlRun "su testuserqa -c 'service $TARGET restart'" 1 " Insufficient rights, restarting target under nonprivileged user must fail " # returns 1 instead of 4 because of polkit
+
+            rlLog ">>>>>>>>> operations"
+            rlServiceStop $TARGET
+            rlRun "service $TARGET start" 0 " Target have to implement start function "
+            rlRun "service $TARGET restart" 0 " Target have to implement restart function "
+            rlRun "service $TARGET status" 0 " Target have to implement status function "
+
+            rlLog ">>>>>>>>> nonexist operations"
+            rlRun "service $TARGET noexistop" 2 " Testing proper return code when nonexisting function "
+
+            rlServiceRestore $TARGET
+
+        rlPhaseEnd
+    fi
 
 
 #    rlPhaseStartTest "$SRV_NETWORK service LSB compliance test" 
@@ -146,13 +184,13 @@ fi
 #        SERVICE=$SRV_NETWORK
 #        rlServiceStop $SERVICE
 #        rlLog ">>>>>>>>> service start"
-#        rlRun "service $SERVICE start" 0 " Service must start without problem"
+#        rlRun "service $SERVICE start" 0 " Service must start without problem "
 #        rlRun "service $SERVICE status" 0 " Then Status command "
 #        rlRun "service $SERVICE start" 1,0 " Already started service "
 #        rlRun "service $SERVICE status" 0 " Again status command "
 
 #        rlLog ">>>>>>>>> service restart"
-#        rlRun "service $SERVICE restart" 0 " Restarting of service"
+#        rlRun "service $SERVICE restart" 0 " Restarting of service "
 #        rlRun "service $SERVICE status" 0 " Status command "
 
 #        rlLog ">>>>>>>>> service stop"
@@ -163,7 +201,7 @@ fi
 
 #        rlLog ">>>>>>>>> insufficient rights"
 #        rlRun "service $SERVICE start " 0 " Starting service for restarting under nonpriv user "
-#        rlRun "su testuserqa -c 'service $SERVICE restart'" 4 "Insufficient rights, restarting resrvice under nonprivileged user must fail"
+#        rlRun "su testuserqa -c 'service $SERVICE restart'" 4 "Insufficient rights, restarting resrvice under nonprivileged user must fail "
 
 #        rlLog ">>>>>>>>> operations"
 #        rlServiceStop $SERVICE
@@ -174,7 +212,7 @@ fi
 #        rlRun "service $SERVICE force-reload" 0 " Service have to implement force-reload function "
 
 #        rlLog ">>>>>>>>> nonexist operations"
-#        rlRun "service $SERVICE noexistop" 2 " Testing proper return code when nonexisting function"
+#        rlRun "service $SERVICE noexistop" 2 " Testing proper return code when nonexisting function "
 
 #        rlServiceRestore $SERVICE
 #        service $SERVICE start
