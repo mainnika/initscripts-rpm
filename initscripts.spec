@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.79
 License: GPLv2
 Group: System Environment/Base
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: https://github.com/fedora-sysv/initscripts
 Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Requires: /bin/awk, sed, coreutils
@@ -159,6 +159,9 @@ fi
 %dir %{_libexecdir}/initscripts/legacy-actions
 
 %changelog
+* Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 9.79-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
 * Tue Jan 02 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.79-1
 - ifdown-post: fix logical error in commit 5d61564
 - network: add knob to optionally keep interfaces up during shutdown
