@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.79
 License: GPLv2
 Group: System Environment/Base
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: https://github.com/fedora-sysv/initscripts
 Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Requires: /bin/awk, sed, coreutils
@@ -159,6 +159,9 @@ fi
 %dir %{_libexecdir}/initscripts/legacy-actions
 
 %changelog
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 9.79-3
+- Escape macros in %%changelog
+
 * Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 9.79-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
@@ -470,7 +473,7 @@ ng
 - check an IP address for existence in ifup-alias (#852005)
 - sync FSF address with GPL 2 text.
 - fix rpmlint's spaces vs tabs warning.
-- fix bogus %changelog dates.
+- fix bogus %%changelog dates.
 - build with $RPM_LD_FLAGS.
 - use -sf, not -s. (#901827)
 - add /usr/libexec/initscripts to file list (#894475)
