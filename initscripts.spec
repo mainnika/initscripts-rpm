@@ -3,7 +3,7 @@ Name: initscripts
 Version: 9.79
 License: GPLv2
 Group: System Environment/Base
-Release: 3%{?dist}
+Release: 4%{?dist}
 URL: https://github.com/fedora-sysv/initscripts
 Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Requires: /bin/awk, sed, coreutils
@@ -23,6 +23,7 @@ Requires: cpio
 Requires: hostname
 Conflicts: ipsec-tools < 0.8.0-2
 Conflicts: NetworkManager < 0.9.9.0-37.git20140131.el7
+Conflicts: util-linux < 2.32-5
 Conflicts: ppp < 2.4.6-4
 Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
@@ -82,7 +83,6 @@ fi
 %files -f %{name}.lang
 %defattr(-,root,root)
 %dir %{_sysconfdir}/sysconfig/network-scripts
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/adjtime
 %config(noreplace) %{_sysconfdir}/sysconfig/netconsole
 %config(noreplace) %{_sysconfdir}/sysconfig/readonly-root
 %{_sysconfdir}/sysconfig/network-scripts/ifdown
@@ -159,6 +159,9 @@ fi
 %dir %{_libexecdir}/initscripts/legacy-actions
 
 %changelog
+* Fri May 18 2018 Karel Zak <kzak@redhat.com>  9.79-4
+- move /etc/adjtime config from initscripts to util-linux
+
 * Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 9.79-3
 - Escape macros in %%changelog
 
