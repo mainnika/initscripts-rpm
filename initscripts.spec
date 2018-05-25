@@ -75,13 +75,6 @@ fi
 %postun
 %systemd_postun fedora-import-state.service fedora-loadmodules.service fedora-readonly.service
 
-# This should be removed in Rawhide for Fedora 29:
-%triggerun -- initscripts < 9.78
-if [ $1 -gt 1 ]; then
-  systemctl enable fedora-import-state.service fedora-readonly.service &> /dev/null || :
-  echo -e "\nUPGRADE: Automatically re-enabling default systemd units: fedora-import-state.service fedora-readonly.service\n" || :
-fi
-
 %files -f %{name}.lang
 %defattr(-,root,root)
 %dir %{_sysconfdir}/sysconfig/network-scripts
@@ -164,6 +157,7 @@ fi
 * Fri May 25 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.80-1
 - sysconfig/readonly-root: Clarify the usage of readonly-root
 - use proper shebang where appropriate
+- specfile: remove the systemctl call in the %postun phase
 - network-functions: use tr to upper case strings rather than awk
 - network-functions: add error messages for bonding installation
 - ifdown-eth: no longer needed 'pidof -x dhclient' condition removed
