@@ -1,9 +1,9 @@
 Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.79
+Version: 9.80
 License: GPLv2
 Group: System Environment/Base
-Release: 3%{?dist}
+Release: 1%{?dist}
 URL: https://github.com/fedora-sysv/initscripts
 Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Requires: /bin/awk, sed, coreutils
@@ -28,7 +28,7 @@ Requires(pre): /usr/sbin/groupadd
 Requires(post): /sbin/chkconfig, coreutils
 Requires(preun): /sbin/chkconfig
 %{?systemd_requires}
-BuildRequires: glib2-devel popt-devel gettext pkgconfig systemd
+BuildRequires: gcc glib2-devel popt-devel gettext pkgconfig systemd
 Provides: /sbin/service
 
 %description
@@ -159,11 +159,19 @@ fi
 %dir %{_libexecdir}/initscripts/legacy-actions
 
 %changelog
-* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 9.79-3
-- Escape macros in %%changelog
-
-* Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 9.79-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+* Fri May 25 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.80-1
+- sysconfig/readonly-root: Clarify the usage of readonly-root
+- use proper shebang where appropriate
+- specfile: remove the systemctl call in the %postun phase
+- network-functions: use tr to upper case strings rather than awk
+- network-functions: add error messages for bonding installation
+- ifdown-eth: no longer needed 'pidof -x dhclient' condition removed
+- netconsole: LSB header added
+- po/xgettext_sh*: converted to use to python3
+- network.service: 'reload' removed
+- ifup-tunnel: Support 'external' tunnels
+- spec: add gcc to BuildRequires
+- init.d/functions: fix sourcing for ksh
 
 * Tue Jan 02 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.79-1
 - ifdown-post: fix logical error in commit 5d61564
