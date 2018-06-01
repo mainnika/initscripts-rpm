@@ -1,159 +1,260 @@
-Summary: Scripts to bring up network interfaces and legacy utilities
-Name: initscripts
-Version: 9.80
-License: GPLv2
-Group: System Environment/Base
-Release: 1%{?dist}
-URL: https://github.com/fedora-sysv/initscripts
-Source: https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
-Requires: /bin/awk, sed, coreutils
-Requires: grep
-Requires: module-init-tools
-Requires: util-linux >= 2.16
-Requires: bash >= 3.0
-Requires: procps-ng >= 3.3.8-16
-Requires: ipcalc
-Conflicts: systemd < 216-3
-Conflicts: lvm2 < 2.02.98-3
-Conflicts: dmraid < 1.0.0.rc16-18
-Conflicts: policycoreutils < 2.5-6
-Requires: systemd
-Requires: iproute, /sbin/arping, findutils
-Requires: cpio
-Requires: hostname
-Conflicts: ipsec-tools < 0.8.0-2
-Conflicts: NetworkManager < 0.9.9.0-37.git20140131.el7
-Conflicts: util-linux < 2.32-5
-Conflicts: ppp < 2.4.6-4
-Requires(pre): /usr/sbin/groupadd
-Requires(post): /sbin/chkconfig, coreutils
-Requires(preun): /sbin/chkconfig
+# === GLOBAL MACROS ===========================================================
+
+# According to Fedora Package Guidelines, it is advised that packages that can
+# process untrusted input are build with position-idenpendent code (PIC).
+#
+# Koji should override the compilation flags and add the -fPIC or -fPIE flags by
+# default. This is here just in case this wouldn't happen for some reason.
+# For more info: https://fedoraproject.org/wiki/Packaging:Guidelines#PIE
+%global _hardened_build 1
+
+# =============================================================================
+
+Name:             initscripts
+Summary:          Scripts to bring up network interfaces & legacy utilities
+Version:          9.81
+Release:          1%{?dist}
+
+License:          GPLv2
+
+URL:              https://github.com/fedora-sysv/initscripts
+Source:           https://github.com/fedora-sysv/initscripts/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
+
+Requires:         bash                >= 3.0
+Requires:         coreutils
+Requires:         cpio
+Requires:         filesystem          >= 3
+Requires:         findutils
+Requires:         gawk
+Requires:         grep
+Requires:         hostname
+Requires:         ipcalc
+Requires:         iproute
+Requires:         iputils
+Requires:         module-init-tools
+Requires:         procps-ng           >= 3.3.8-16
+Requires:         sed
+Requires:         setup
+Requires:         systemd
+Requires:         util-linux          >= 2.16
+
+Requires(pre):    shadow-utils
+Requires(post):   chkconfig
+Requires(post):   coreutils
+Requires(post):   %{_sbindir}/update-alternatives
+
+Requires(preun):  chkconfig
+Requires(postun): %{_sbindir}/update-alternatives
+
+BuildRequires:    filesystem          >= 3
+BuildRequires:    gcc
+BuildRequires:    git
+BuildRequires:    gettext
+BuildRequires:    glib2-devel
+BuildRequires:    pkgconfig
+BuildRequires:    popt-devel
+BuildRequires:    setup
+
 %{?systemd_requires}
-BuildRequires: gcc glib2-devel popt-devel gettext pkgconfig systemd
-Provides: /sbin/service
+BuildRequires:    systemd
+
+Provides:         /sbin/service
+
+Conflicts:        dmraid             < 1.0.0.rc16-18
+Conflicts:        ipsec-tools        < 0.8.0-2
+Conflicts:        lvm2               < 2.02.98-3
+Conflicts:        NetworkManager     < 0.9.9.0-37.git20140131.el7
+Conflicts:        policycoreutils    < 2.5-6
+Conflicts:        ppp                < 2.4.6-4
+Conflicts:        systemd            < 216-3
+
+# === PATCHES =================================================================
+
+# NOTE: 'autosetup' macro (below) uses 'git' for applying the patches:
+#       ->> All the patches should be provided in 'git format-patch' format.
+#       ->> Auxiliary repository will be created during 'fedpkg prep', you
+#           can see all the applied patches there via 'git log'.
+
+# Upstream patches -- official upstream patches released by upstream since the
+# ----------------    last rebase that are necessary for any reason:
+#Patch000: example000.patch
+
+
+# Downstream patches -- these should be always included when doing rebase:
+# ------------------
+#Patch100: example100.patch
+
+
+# Downstream patches for RHEL -- patches that we keep only in RHEL for various
+# ---------------------------    reasons, but are not enabled in Fedora:
+%if %{defined rhel} || %{defined centos}
+#Patch200: example200.patch
+%endif
+
+
+# Patches to be removed -- deprecated functionality which shall be removed at
+# ---------------------    some point in the future:
+
 
 %description
-This package contains the script that activates and deactivates most
+This package contains the scripts that activates and deactivates most
 network interfaces, some utilities, and other legacy files.
 
+# === BUILD INSTRUCTIONS ======================================================
+
 %prep
-%setup -q
+%autosetup -S git
+
+# ---------------
 
 %build
-make
+%make_build
+
+# ---------------
 
 %install
-make ROOT=%{buildroot} SUPERUSER=`id -un` SUPERGROUP=`id -gn` mandir=%{_mandir} install
+%make_install
 
+# This installs the NLS language files:
 %find_lang %{name}
 
 %ifnarch s390 s390x
-rm -f \
-  %{buildroot}%{_sysconfdir}/sysconfig/network-scripts/ifup-ctc \
+  rm -f %{buildroot}%{_sysconfdir}/sysconfig/network-scripts/ifup-ctc
 %endif
 
-rm -f %{buildroot}%{_sysconfdir}/rc.d/rc.local %{buildroot}%{_sysconfdir}/rc.local
-touch %{buildroot}%{_sysconfdir}/rc.d/rc.local
-chmod 755 %{buildroot}%{_sysconfdir}/rc.d/rc.local
+ln -s %{_mandir}/man8/ifup.8 %{buildroot}%{_mandir}/man8/ifdown.8
 
-rm -f %{buildroot}%{_sysconfdir}/adjtime
+# We are now using alternatives approach to better co-exist with NetworkManager:
+touch %{buildroot}%{_sbindir}/ifup
+touch %{buildroot}%{_sbindir}/ifdown
+
+# ---------------
 
 %post
-%systemd_post fedora-import-state.service fedora-loadmodules.service fedora-readonly.service
+%systemd_post import-state.service loadmodules.service readonly-root.service
 
-/usr/sbin/chkconfig --add network > /dev/null 2>&1 || :
-/usr/sbin/chkconfig --add netconsole > /dev/null 2>&1 || :
+chkconfig --add network > /dev/null 2>&1 || :
+chkconfig --add netconsole > /dev/null 2>&1 || :
+
+[ -L %{_sbindir}/ifup ]   || rm -f %{_sbindir}/ifup
+[ -L %{_sbindir}/ifdown ] || rm -f %{_sbindir}/ifdown
+
+%{_sbindir}/update-alternatives --install %{_sbindir}/ifup   ifup   %{_sysconfdir}/sysconfig/network-scripts/ifup 90 \
+                                --slave   %{_sbindir}/ifdown ifdown %{_sysconfdir}/sysconfig/network-scripts/ifdown \
+                                --initscript network
+
+# ---------------
 
 %preun
-%systemd_preun fedora-import-state.service fedora-loadmodules.service fedora-readonly.service
+%systemd_preun import-state.service loadmodules.service readonly-root.service
 
-if [ $1 = 0 ]; then
-  /usr/sbin/chkconfig --del network > /dev/null 2>&1 || :
-  /usr/sbin/chkconfig --del netconsole > /dev/null 2>&1 || :
+if [ $1 -eq 0 ]; then
+  chkconfig --del network > /dev/null 2>&1 || :
+  chkconfig --del netconsole > /dev/null 2>&1 || :
+  %{_sbindir}/update-alternatives --remove ifup %{_sysconfdir}/sysconfig/network-scripts/ifup
 fi
 
+# ---------------
+
 %postun
-%systemd_postun fedora-import-state.service fedora-loadmodules.service fedora-readonly.service
+%systemd_postun import-state.service loadmodules.service readonly-root.service
+
+# === PACKAGING INSTRUCTIONS ==================================================
 
 %files -f %{name}.lang
-%defattr(-,root,root)
-%dir %{_sysconfdir}/sysconfig/network-scripts
-%config(noreplace) %{_sysconfdir}/sysconfig/netconsole
-%config(noreplace) %{_sysconfdir}/sysconfig/readonly-root
-%{_sysconfdir}/sysconfig/network-scripts/ifdown
-%{_sbindir}/ifdown
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-post
-%{_sysconfdir}/sysconfig/network-scripts/ifup
-%{_sbindir}/ifup
-%dir %{_sysconfdir}/sysconfig/console
-%dir %{_sysconfdir}/sysconfig/modules
-%{_sysconfdir}/sysconfig/network-scripts/network-functions
-%{_sysconfdir}/sysconfig/network-scripts/network-functions-ipv6
-%{_sysconfdir}/sysconfig/network-scripts/init.ipv6-global
-%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifcfg-lo
-%{_sysconfdir}/sysconfig/network-scripts/ifup-post
-%{_sysconfdir}/sysconfig/network-scripts/ifup-routes
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-routes
-%{_sysconfdir}/sysconfig/network-scripts/ifup-plip
-%{_sysconfdir}/sysconfig/network-scripts/ifup-plusb
-%{_sysconfdir}/sysconfig/network-scripts/ifup-bnep
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-bnep
-%{_sysconfdir}/sysconfig/network-scripts/ifup-eth
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-eth
-%{_sysconfdir}/sysconfig/network-scripts/ifup-ipv6
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-ipv6
-%{_sysconfdir}/sysconfig/network-scripts/ifup-sit
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-sit
-%{_sysconfdir}/sysconfig/network-scripts/ifup-tunnel
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-tunnel
-%{_sysconfdir}/sysconfig/network-scripts/ifup-aliases
-%{_sysconfdir}/sysconfig/network-scripts/ifup-ippp
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-ippp
-%{_sysconfdir}/sysconfig/network-scripts/ifup-wireless
-%{_sysconfdir}/sysconfig/network-scripts/ifup-isdn
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-isdn
-%ifarch s390 s390x
-%{_sysconfdir}/sysconfig/network-scripts/ifup-ctc
-%endif
-%config(noreplace) %{_sysconfdir}/networks
-%config(noreplace) %{_sysconfdir}/rwtab
-%config(noreplace) %{_sysconfdir}/statetab
+%license COPYING
+%doc doc/*
+
+# NOTE: /etc/profile.d/ is owned by setup package.
+#       /etc/sysconfig/ is owned by filesystem package.
+%dir %{_sysconfdir}/rc.d
+%dir %{_sysconfdir}/rc.d/init.d
+%dir %{_sysconfdir}/rc.d/rc[0-6].d
 %dir %{_sysconfdir}/rwtab.d
 %dir %{_sysconfdir}/statetab.d
-%{_prefix}/lib/systemd/fedora-*
-%{_prefix}/lib/systemd/system/*
-%dir %{_sysconfdir}/rc.d
-%dir %{_sysconfdir}/rc.d/rc[0-9].d
-%{_sysconfdir}/rc[0-9].d
-%dir %{_sysconfdir}/rc.d/init.d
-%{_sysconfdir}/rc.d/init.d/*
-%ghost %verify(not md5 size mtime) %config(noreplace,missingok) %{_sysconfdir}/rc.d/rc.local
-%{_sysconfdir}/profile.d/*
-%{_sbindir}/sys-unconfig
-%{_bindir}/usleep
-%attr(4755,root,root) %{_sbindir}/usernetctl
+%dir %{_sysconfdir}/sysconfig/console
+%dir %{_sysconfdir}/sysconfig/modules
+%dir %{_sysconfdir}/sysconfig/network-scripts
+%dir %{_libexecdir}/%{name}
+%dir %{_libexecdir}/%{name}/legacy-actions
+%dir %{_sharedstatedir}/stateless
+%dir %{_sharedstatedir}/stateless/state
+%dir %{_sharedstatedir}/stateless/writable
+
+# ---------------
+
+%config(noreplace) %{_sysconfdir}/rwtab
+%config(noreplace) %{_sysconfdir}/statetab
+%config(noreplace) %{_sysconfdir}/sysconfig/netconsole
+%config(noreplace) %{_sysconfdir}/sysconfig/readonly-root
+%config(noreplace) %{_sysconfdir}/sysconfig/network-scripts/ifcfg-lo
+
+%ghost %config(noreplace, missingok) %verify(not md5 size mtime) %{_sysconfdir}/rc.d/rc.local
+
+%{_sysconfdir}/rc.d/init.d/functions
+%{_sysconfdir}/rc.d/init.d/netconsole
+%{_sysconfdir}/rc.d/init.d/network
+%{_sysconfdir}/sysconfig/network-scripts/*
+
+# RC symlinks:
+%{_sysconfdir}/rc[0-6].d
+
+# ---------------
+
+%{_bindir}/*
 %{_sbindir}/consoletype
 %{_sbindir}/genhostid
-%{_sbindir}/sushell
-%attr(2755,root,root) %{_sbindir}/netreport
-%{_udevrulesdir}/*
-%{_prefix}/lib/udev/rename_device
 %{_sbindir}/service
-%{_mandir}/man*/*
-%dir %attr(775,root,root) /run/netreport
-%dir %{_sysconfdir}/NetworkManager
-%dir %{_sysconfdir}/NetworkManager/dispatcher.d
-%{_sysconfdir}/NetworkManager/dispatcher.d/00-netreport
-%doc sysconfig.txt sysvinitfiles static-routes-ipv6 ipv6-tunnel.howto ipv6-6to4.howto changes.ipv6
-%doc examples
-%{!?_licensedir:%global license %%doc}
-%license COPYING
-%{_sharedstatedir}/stateless
-%{_tmpfilesdir}/initscripts.conf
-%dir %{_libexecdir}/initscripts
-%dir %{_libexecdir}/initscripts/legacy-actions
+
+%ghost %{_sbindir}/ifup
+%ghost %{_sbindir}/ifdown
+
+%attr(4755,root,root) %{_sbindir}/usernetctl
+
+%{_prefix}/lib/systemd/import-state
+%{_prefix}/lib/systemd/loadmodules
+%{_prefix}/lib/systemd/readonly-root
+%{_prefix}/lib/systemd/system/*
+%{_prefix}/lib/udev/rename_device
+
+%{_udevrulesdir}/*
+
+%{_mandir}/man1/*
+%{_mandir}/man8/*
+
+# ---------------
 
 %changelog
+* Thu May 31 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.81-1
+- src/consoletype.c: deprecation warning added
+- src/genhostid.c: deprecation warning added
+- src/genhostid.c: fixed to not override /etc/hostid if it already exists
+- src/usleep.c: GCC warnings fixed
+- nis-domainname.service removed
+- fedora-* services renamed to more general names
+- specfile: missing fedora-domainname.service returned in systemd macros
+- COPYING updated to latest GNU version (GPLv2+)
+- network-scripts: control 'network' service with alternatives as well
+- netreport functionality dropped
+- networks moved into 'setup' package
+- lang.{sh,csh} moved into setup package
+- lang.{sh,csh} cleanup before moving to 'setup' package
+- src/sushell moved into 'policycoreutils' package
+- src/shvar.* removed
+- po/xgettext_sh removed
+- sys-unconfig removed
+- Outdated files from doc/ folder removed
+- make archive: ChangeLog generating removed
+- network-scripts: ifup & ifdown -- use alternatives system
+- adjtime moved into 'util-linux' package
+- specfile: simplified & updated to new repository layout
+- .gitignore files updated to new repository layout
+- Makefile simplified & updated to new repository layout
+- po/Makefile simplified & updated to new repository layout
+- src/Makefile simplified & updated to new repository layout
+- Repository scheme updated to new layout
+- fedora-readonly: command substitution warning fixed (null-byte input)
+
 * Fri May 25 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.80-1
 - sysconfig/readonly-root: Clarify the usage of readonly-root
 - use proper shebang where appropriate
@@ -167,7 +268,6 @@ fi
 - ifup-tunnel: Support 'external' tunnels
 - spec: add gcc to BuildRequires
 - init.d/functions: fix sourcing for ksh
-- /etc/adjtime config moved from initscripts to util-linux
 
 * Tue Jan 02 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.79-1
 - ifdown-post: fix logical error in commit 5d61564
@@ -477,7 +577,7 @@ ng
 - check an IP address for existence in ifup-alias (#852005)
 - sync FSF address with GPL 2 text.
 - fix rpmlint's spaces vs tabs warning.
-- fix bogus %%changelog dates.
+- fix bogus %changelog dates.
 - build with $RPM_LD_FLAGS.
 - use -sf, not -s. (#901827)
 - add /usr/libexec/initscripts to file list (#894475)
