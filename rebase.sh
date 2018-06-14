@@ -16,7 +16,7 @@ curl https://raw.githubusercontent.com/fedora-sysv/initscripts/master/initscript
 spectool -g initscripts.spec
 
 # Make a local scratch build in mock first. If it fails, do not upload new tarball!
-srpm_file="$(fedpkg srpm | grep -i "wrote" | cut -d ':' -f 2)"
+srpm_file="$(basename $(fedpkg srpm | grep -i "wrote" | cut -d ':' -f 2))"
 arch="$(uname -p)"
 
 mock -r "fedora-rawhide-${arch}" "${srpm_file}" || exit 2
