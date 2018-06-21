@@ -18,7 +18,7 @@ Requires:         gawk                       \
 
 Name:             initscripts
 Summary:          Basic support for legacy System V init scripts
-Version:          9.83
+Version:          10.00
 Release:          1%{?dist}
 
 License:          GPLv2
@@ -332,8 +332,6 @@ fi
 # ---------------
 
 %files -n readonly-root
-%dir %{_sysconfdir}/rwtab.d
-%dir %{_sysconfdir}/statetab.d
 %dir %{_sharedstatedir}/stateless
 %dir %{_sharedstatedir}/stateless/state
 %dir %{_sharedstatedir}/stateless/writable
@@ -348,6 +346,10 @@ fi
 # =============================================================================
 
 %changelog
+* Thu Jun 21 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 10.00-1
+- Move the /etc/rwtab.d & /etc/statetab.d folders to 'filesystem'
+- specfile: fix failing build because of incorrect use of %{_isa}
+
 * Thu Jun 14 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 9.83-1
 - network-scripts: Add previously dropped error checking
 - network-scripts: Replace brctl with ip-link
