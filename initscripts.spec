@@ -19,7 +19,7 @@ Requires:         gawk                       \
 Name:             initscripts
 Summary:          Basic support for legacy System V init scripts
 Version:          10.00
-Release:          1%{?dist}
+Release:          2%{?dist}
 
 License:          GPLv2
 
@@ -346,6 +346,9 @@ fi
 # =============================================================================
 
 %changelog
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 10.00-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Thu Jun 21 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 10.00-1
 - Move the /etc/rwtab.d & /etc/statetab.d folders to 'filesystem'
 - specfile: fix failing build because of incorrect use of %{_isa}
