@@ -18,8 +18,8 @@ Requires:         gawk                       \
 
 Name:             initscripts
 Summary:          Basic support for legacy System V init scripts
-Version:          10.00
-Release:          2%{?dist}
+Version:          10.01
+Release:          1%{?dist}
 
 License:          GPLv2
 
@@ -94,6 +94,7 @@ Requires:         %{name}%{?_isa} = %{version}-%{release}
 
 %shared_requirements
 
+Requires:         bc
 Requires:         dbus
 Requires:         gawk
 Requires:         grep
@@ -346,8 +347,11 @@ fi
 # =============================================================================
 
 %changelog
-* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 10.00-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+* Mon Aug 06 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 10.01-1
+- network/ifup/ifdown: deprecations warnings redirected to stderr
+- ifup-eth: use 'bc' instead of 'expr' when computing $forward_delay
+- network/ifup/ifdown: deprecation warnings for 'network-scripts' added
+- network: parsing of /proc/mounts returned
 
 * Thu Jun 21 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 10.00-1
 - Move the /etc/rwtab.d & /etc/statetab.d folders to 'filesystem'
