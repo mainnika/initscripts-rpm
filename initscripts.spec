@@ -19,7 +19,7 @@ Requires:         gawk                       \
 Name:             initscripts
 Summary:          Basic support for legacy System V init scripts
 Version:          10.01
-Release:          1%{?dist}
+Release:          2%{?dist}
 
 License:          GPLv2
 
@@ -347,6 +347,9 @@ fi
 # =============================================================================
 
 %changelog
+* Fri Feb 01 2019 Fedora Release Engineering <releng@fedoraproject.org> - 10.01-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
 * Mon Aug 06 2018 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 10.01-1
 - network/ifup/ifdown: deprecations warnings redirected to stderr
 - ifup-eth: use 'bc' instead of 'expr' when computing $forward_delay
