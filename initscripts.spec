@@ -19,7 +19,7 @@ Requires:         gawk                       \
 Name:             initscripts
 Summary:          Basic support for legacy System V init scripts
 Version:          10.02
-Release:          1%{?dist}
+Release:          2%{?dist}
 
 License:          GPLv2
 
@@ -349,6 +349,9 @@ fi
 # =============================================================================
 
 %changelog
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 10.02-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
 * Fri Jun 28 2019 Jan Macku <jamacku@redhat.com> - 10.02-1
 - network: don't fail with IFDOWN_ON_SHUTDOWN
 - rc.d/functions: remove support cgroups
