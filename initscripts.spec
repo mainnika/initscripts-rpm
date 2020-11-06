@@ -18,8 +18,8 @@ Requires:         gawk                       \
 
 Name:             initscripts
 Summary:          Basic support for legacy System V init scripts
-Version:          10.04
-Release:          2%{?dist}
+Version:          10.05
+Release:          1%{?dist}
 
 License:          GPLv2
 
@@ -174,6 +174,9 @@ Obsoletes:        %{name}            < 9.82-2
 %description -n readonly-root
 This package provides script & configuration file for setting up read-only root
 support. Additional configuration is required after installation.
+
+Please note that readonly-root package is considered deprecated with limited support.
+Please use systemd-volatile-root functionality instead, if possible.
 
 # === BUILD INSTRUCTIONS ======================================================
 
@@ -347,6 +350,18 @@ fi
 # =============================================================================
 
 %changelog
+* Fri Nov 6 2020 Jan Macku <jamacku@redhat.com> - 10.05-1
+- service: Prevent variables from globbing
+- init.d/functions: Make usage msgs more clear
+- network-scripts: Use net_log() instead of logger
+- Allow updating rfkill switch status while in readonly root mode
+- Add info into specfile about readonly-root deprecation
+- Allow updating mlocate.db while in readonly root mode
+- rc.d/functions: replace grep's --quiet with -q
+- Add warning to warn user when ETHTOOL_OPTS is set and ethtool binary is missing - Olav Vitters
+- Fix spacing in Makefile
+- Add optional 'dev' keyword
+
 * Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 10.04-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
