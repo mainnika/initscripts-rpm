@@ -49,6 +49,7 @@ BuildRequires:    setup
 
 %{?systemd_requires}
 BuildRequires:    systemd
+BuildRequires: make
 
 Provides:         /sbin/service
 
