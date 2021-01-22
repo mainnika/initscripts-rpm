@@ -18,7 +18,7 @@ Requires:         gawk                       \
 
 Name:             initscripts
 Summary:          Basic support for legacy System V init scripts
-Version:          10.06
+Version:          10.07
 Release:          1%{?dist}
 
 License:          GPLv2
@@ -49,7 +49,7 @@ BuildRequires:    setup
 
 %{?systemd_requires}
 BuildRequires:    systemd
-BuildRequires: make
+BuildRequires:    make
 
 Provides:         /sbin/service
 
@@ -351,6 +351,16 @@ fi
 # =============================================================================
 
 %changelog
+* Fri Jan 22 2021 Jan Macku <jamacku@redhat.com> - 10.07-1
+- doc: Fix "Duplicated string found in the file."
+- doc: Documents RES_OPTIONS option
+- doc: Documents ifcfg option LINKSTATUS
+- ci: use up to date keywords and fix some warnings
+- network: fix set_link_up()
+- network: add option to keep the link down
+- Rework of shell ci
+- Translations update from Weblate
+
 * Fri Nov 13 2020 Jan Macku <jamacku@redhat.com> - 10.06-1
 - service: catch unsupported action keywords
 - makefile: Use rpmdev-bumpspec's legacy date option
@@ -366,9 +376,6 @@ fi
 - Add warning to warn user when ETHTOOL_OPTS is set and ethtool binary is missing - Olav Vitters
 - Fix spacing in Makefile
 - Add optional 'dev' keyword
-
-* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 10.04-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
 * Tue Jul 14 2020 Jan Macku <jamacku@redhat.com> - 10.04-1
 - Maintain permisision to set umask
@@ -399,12 +406,6 @@ fi
 - rc.d/functions: fix escape sequence being output under systemd service units
 - Add ip6gre tunnel option
 - ifup/ifdown: print DEPRECATION_WARNING_ISSUED waring info after source_config
-
-* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 10.02-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
-
-* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 10.02-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
 * Fri Jun 28 2019 Jan Macku <jamacku@redhat.com> - 10.02-1
 - network: don't fail with IFDOWN_ON_SHUTDOWN
@@ -728,7 +729,7 @@ ng
 * Tue Jan 14 2014 Lukáš Nykrýn <lnykryn@redhat.com> 9.51-1
 - readonly-root: bind-mount only necessary subset of entries in rwtab
 - readonly-root: Add /var/log/audit/audit.log to rwtab
-- readonly-root: restore selinux context after bind mount
+- readonly-root: restore SELinux context after bind mount
 - rename_device: remove comments and trailing whitespaces
 - service: suggest using systemctl if unknown action is used
 - ifup-eth: fix typo in error message
