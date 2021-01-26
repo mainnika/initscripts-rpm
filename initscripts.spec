@@ -19,7 +19,7 @@ Requires:         gawk                       \
 Name:             initscripts
 Summary:          Basic support for legacy System V init scripts
 Version:          10.07
-Release:          1%{?dist}
+Release:          2%{?dist}
 
 License:          GPLv2
 
@@ -351,6 +351,9 @@ fi
 # =============================================================================
 
 %changelog
+* Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 10.07-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
+
 * Fri Jan 22 2021 Jan Macku <jamacku@redhat.com> - 10.07-1
 - doc: Fix "Duplicated string found in the file."
 - doc: Documents RES_OPTIONS option
