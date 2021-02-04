@@ -18,8 +18,8 @@ Requires:         gawk                       \
 
 Name:             initscripts
 Summary:          Basic support for legacy System V init scripts
-Version:          10.07
-Release:          2%{?dist}
+Version:          10.08
+Release:          1%{?dist}
 
 License:          GPLv2
 
@@ -46,10 +46,10 @@ BuildRequires:    glib2-devel
 BuildRequires:    pkgconfig
 BuildRequires:    popt-devel
 BuildRequires:    setup
+BuildRequires:    make
 
 %{?systemd_requires}
 BuildRequires:    systemd
-BuildRequires:    make
 
 Provides:         /sbin/service
 
@@ -351,8 +351,9 @@ fi
 # =============================================================================
 
 %changelog
-* Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 10.07-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
+* Thu Feb  4 2021 Jan Macku <jamacku@redhat.com> - 10.08-1
+- network: fix condition in set_link_up()
+- spec: sync with Fedora
 
 * Fri Jan 22 2021 Jan Macku <jamacku@redhat.com> - 10.07-1
 - doc: Fix "Duplicated string found in the file."
